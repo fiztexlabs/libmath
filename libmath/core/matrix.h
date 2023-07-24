@@ -590,7 +590,7 @@ namespace math
 
 		Matrix<T> M_T(this->cols_, this->rows_);
 		//int pos = 0;
-		size_t n = this->cols_ * this->rows_;
+		size_t n = this->numel();
 
 		auto start = std::chrono::steady_clock::now();
 		#pragma omp parallel for shared(M_T, n) schedule(static)
@@ -622,7 +622,7 @@ namespace math
 		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
 
 		Matrix<T> M_T(this->cols_, this->rows_);
-		size_t n = this->cols_ * this->rows_;
+		size_t n = this->numel();
 
 		//auto start = std::chrono::steady_clock::now();
 		#pragma omp parallel for shared(M_T, n) schedule(static)
@@ -657,9 +657,9 @@ namespace math
 		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
 
 		T norm = static_cast<T>(0.0);
-		size_t n = this->cols_ * this->rows_;
+		size_t n = this->numel();
 
-		#pragma omp parallel for shared(n, p, mvec_) reduction(+:norm)
+		#pragma omp parallel for shared(n, p, mvec_) reduction(+:norm) schedule(static)
 		for (int pos = 0; pos < n; ++pos)
 		{
 			norm += pow(this->mvec_[pos], p);
@@ -951,21 +951,37 @@ namespace math
 	template <typename T>
 	Matrix<T> operator*(const Matrix<T>& M, T n)
 	{
+		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
+
 		Matrix<T> mul_M(M.rows(), M.cols());
-		for (size_t i = 0; i < mul_M.numel(); ++i)
+		size_t el = M.numel();
+
+		//auto start = std::chrono::steady_clock::now();
+		#pragma omp parallel for shared(mul_M, el) schedule(static)
+		for (int pos = 0; pos < el; ++pos)
 		{
-			mul_M.mvec_[i] = M.mvec_[i] * n;
+			mul_M.mvec_[pos] = M.mvec_[pos] * n;
 		}
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return mul_M;
 	};
 
 	template <typename T>
 	Matrix<T>& Matrix<T>::operator*=(T n)
 	{
-		for (size_t i = 0; i < this->mvec_.size(); ++i)
+		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
+
+		size_t el = this->numel();
+
+		//auto start = std::chrono::steady_clock::now();
+		#pragma omp parallel for shared(el) schedule(static)
+		for (int pos = 0; pos < el; ++pos)
 		{
-			this->mvec_[i] *= n;
+			this->mvec_[pos] *= n;
 		}
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return *this;
 	};
 
@@ -976,17 +992,39 @@ namespace math
 		{
 			throw(math::ExceptionInvalidValue("Matrix<T>::operator*: Matrices can't be multiplied!"));
 		}
+
 		Matrix<T> C(A.rows(), B.cols());
-		for (size_t i = 0; i < A.rows(); ++i)
+		size_t n = A.numel();
+
+		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
+
+		//auto start = std::chrono::steady_clock::now();		
+		#pragma omp parallel for shared(A, B, C, n) schedule(static)
+		for (int pos = 0; pos < n; ++pos)
 		{
-			for (size_t j = 0; j < B.cols(); ++j)
+			size_t row = 0;
+			size_t col = 0;
+			if (A.repr_ == math::MatRep::Row) // row repr
 			{
-				for (size_t k = 0; k < A.cols(); ++k)
-				{
-					C(i, j) += A(i, k) * static_cast<T>(B(k, j));
-				}
+				row = (size_t)std::floor(pos / A.cols_);
+				col = pos - row * A.cols_;
 			}
+			else if (A.repr_ == math::MatRep::Column) // column repr
+			{
+				col = (size_t)std::floor(pos / A.rows_);
+				row = pos - A.rows_ * col;
+			}
+
+			for (int k = 0; k < A.cols(); ++k)
+			{
+				C(row, col) += A(row, k) * static_cast<T>(B(k, col));
+			}
+		
+		
 		}
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+
 		return C;
 	};
 

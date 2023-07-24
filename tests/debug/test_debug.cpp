@@ -4,13 +4,13 @@
 #include <libmath/core/matrix.h>
 #include <libmath/core/pmatrix.h>
 
-TEST(Matrix, getTr)
+TEST(Matrix, MulMbyM)
 {
     math::Matrix<double> m1(1000);
     m1.rfill(2);
-    math::Matrix<double> mL(1000);
-    math::Matrix<double> mU(1000);
-    m1.decompLU(mL, mU);
+    math::Matrix<double> m2(1000);
+    m2.rfill(2);
+    math::Matrix<double> m3 = m1 * m2;
 	// m2.print();
 }
 

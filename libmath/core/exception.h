@@ -40,4 +40,32 @@ namespace math
 			type_ = "InvalidValue";
 		}
 	};
+
+	/**
+	* @brief Exception non-square matrix
+	*/
+	class ExceptionNonSquareMatrix :
+		public Exception
+	{
+	public:
+		ExceptionNonSquareMatrix(const std::string& m)
+			: Exception(m)
+		{
+			type_ = "NonSquareMatrixDecomposition";
+		}
+	};
+
+	/**
+	* @brief Exception degenerate matrix
+	*/
+	class ExceptionDegenerateMatrix:
+		public Exception
+	{
+	public:
+		ExceptionDegenerateMatrix(const std::string& m)
+			: Exception(m)
+		{
+			type_ = "DegenerateMatrix";
+		}
+	};
 }

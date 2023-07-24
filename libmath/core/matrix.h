@@ -2,6 +2,7 @@
 
 #include <libmath/core/exception.h>
 #include <libmath/core/math_settings.h>
+#include <libmath/core/boolean.h>
 
 #include <vector>
 #include <iostream>
@@ -18,7 +19,7 @@ namespace math
 {
 	//! Enum class for matrix representation definition
 	//! @sa repr_
-	enum MatRep
+	enum class MatRep
 	{
 		Row = 0,
 		Column
@@ -30,7 +31,7 @@ namespace math
 	class Matrix
 	{
 
-	protected:
+	private:
 		//! Number of rows
 		size_t rows_;
 		//! Numner of columns
@@ -63,15 +64,6 @@ namespace math
 		 * @return Matrix size*size of T
 		 */
 		explicit Matrix(size_t size, MatRep repr = MatRep::Row);
-
-		/**
-		 * @brief Square random matrix constructor
-		 * @param size Dimensions of square matrix
-		 * @param repr Representation (0 - row,default; 1 - column)
-		 * @param seed: Seed for random generator
-		 * @return Matrix size*size of T
-		 */
-		explicit Matrix(int seed, size_t size, MatRep repr = MatRep::Row);
 
 		/**
 		 * @brief Arbitrary size matrix constructor
@@ -174,6 +166,12 @@ namespace math
 		* @param val: Value to fill matrix
 		*/
 		void fill(T val);
+
+		/**
+		* @brief Fill matrix by random values with seed seed
+		* @param seed: Seed for random generatoe
+		*/
+		void rfill(T seed);
 
 		/**
 		 * @brief Print Matrix to std out. Specified by format
@@ -438,18 +436,6 @@ namespace math
 		repr_{ repr } {};
 
 	template <class T>
-	Matrix<T>::Matrix(int seed, size_t size, MatRep repr)
-		: rows_{ size },
-		cols_{ size },
-		mvec_{ std::vector<T>(size * size) },
-		repr_{ repr } {
-		std::srand(seed);
-		std::generate(mvec_.begin(), mvec_.end(), []() {
-			return rand() % 100;
-			});
-	};
-
-	template <class T>
 	Matrix<T>::Matrix(size_t rows, size_t cols, MatRep repr)
 		: rows_{ rows },
 		cols_{ cols },
@@ -526,7 +512,7 @@ namespace math
 	{
 		if (repr_ != math::MatRep::Row)
 		{
-			throw(math::ExceptionInvalidValue("Incorrect matrex represrntation for index operator"));
+			throw(math::ExceptionInvalidValue("Incorrect matrix represrntation for index operator"));
 		}
 		if (index > rows_ - 1)
 		{
@@ -541,6 +527,14 @@ namespace math
 		std::fill(mvec_.begin(), mvec_.end(), val);
 	}
 
+	template <typename T>
+	void Matrix<T>::rfill(T seed)
+	{
+		std::srand(seed);
+		std::generate(mvec_.begin(), mvec_.end(), []() {
+			return rand() % 100;
+			});
+	}
 	template <typename T>
 	void Matrix<T>::print(int /*prec*/)
 	{
@@ -595,44 +589,63 @@ namespace math
 		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
 
 		Matrix<T> M_T(this->cols_, this->rows_);
-		int pos = 0;
+		//int pos = 0;
 		size_t n = this->cols_ * this->rows_;
 
-		//auto start = std::chrono::steady_clock::now();
-		#pragma omp parallel for shared(M_T, n) private(pos) schedule(static)
-		for (pos = 0; pos < n; ++pos)
+		auto start = std::chrono::steady_clock::now();
+		#pragma omp parallel for shared(M_T, n) schedule(static)
+		for (int pos = 0; pos < n; ++pos)
 		{
 			size_t row = 0;
 			size_t col = 0;
 			if (this->repr_ == math::MatRep::Row) // row repr
 			{
-				row = size_t(pos / this->cols_);
+				row = (size_t)std::floor(pos / this->cols_);
 				col = pos - row * this->cols_;
 			}
 			else if (this->repr_ == math::MatRep::Column) // column repr
 			{
-				col = size_t(pos / this->rows_);
+				col = (size_t)std::floor(pos / this->rows_);
 				row = pos - this->rows_ * col;
 			}
 			M_T(col, row) = this->mvec_[pos];
 			
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		auto end = std::chrono::steady_clock::now();
+		std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return M_T;
 	}
 
 	template <typename T>
 	void Matrix<T>::tr()
 	{
+		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
+
 		Matrix<T> M_T(this->cols_, this->rows_);
-		for (size_t row = 0; row < rows_; ++row)
+		size_t n = this->cols_ * this->rows_;
+
+		//auto start = std::chrono::steady_clock::now();
+		#pragma omp parallel for shared(M_T, n) schedule(static)
+		for (int pos = 0; pos < n; ++pos)
 		{
-			for (size_t col = 0; col < cols_; ++col)
+			size_t row = 0;
+			size_t col = 0;
+			if (this->repr_ == math::MatRep::Row) // row repr
 			{
-				M_T(col, row) = (*this)(row, col);
+				row = (size_t)std::floor(pos / this->cols_);
+				col = pos - row * this->cols_;
 			}
+			else if (this->repr_ == math::MatRep::Column) // column repr
+			{
+				col = (size_t)std::floor(pos / this->rows_);
+				row = pos - this->rows_ * col;
+			}
+			M_T(col, row) = this->mvec_[pos];
+
 		}
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+
 		this->rows_ = M_T.rows();
 		this->cols_ = M_T.cols();
 		this->mvec_ = M_T.vectorized();
@@ -641,19 +654,15 @@ namespace math
 	template <typename T>
 	T Matrix<T>::norm(const int p)
 	{
+		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
+
 		T norm = static_cast<T>(0.0);
-		for (size_t i = 0; i < this->rows_; ++i)
+		size_t n = this->cols_ * this->rows_;
+
+		#pragma omp parallel for shared(n, p, mvec_) reduction(+:norm)
+		for (int pos = 0; pos < n; ++pos)
 		{
-			for (size_t j = 0; j < this->cols_; ++j)
-			{
-				//size_t pos{ 0 };
-				//if (this->repr_ == math::MatRep::Row) // row repr
-				//	pos = row * cols_ + col;
-				//else if (this->repr_ == math::MatRep::Column) // column repr
-				//	pos = row + rows_ * col;
-				//return this->mvec_.at(pos);
-				norm += pow((*this)(i, j), p);
-			}
+			norm += pow(this->mvec_[pos], p);
 		}
 		return pow(norm, (1.0 / p));
 	}
@@ -676,26 +685,76 @@ namespace math
 	{
 		if (cols_ != rows_)
 		{
-			std::cerr << "decompLU: matrix must be square!\n";
-			Exception exc(Exception::Type::NonSquareMatrixDecomposition);
-			throw exc;
-			//      exit(3);
+			throw(math::ExceptionNonSquareMatrix("decompLU: matrix must be square!"));
 		}
 		if (Matrix_L.rows() != Matrix_L.cols() ||
 			Matrix_L.rows() != this->rows())
 		{
-			std::cerr << "decompLU: Matrix L argument of incorrect size!\n";
-			Exception exc(Exception::Type::DecompositionArgumentIncorrectSize);
-			throw exc;
+			throw(math::ExceptionInvalidValue("decompLU: Matrix L argument of incorrect size!"));
 		}
 		if (Matrix_U.rows() != Matrix_U.cols() ||
 			Matrix_U.rows() != this->rows())
 		{
-			std::cerr << "decompLU: Matrix U argument of incorrect size!\n";
-			Exception exc(Exception::Type::DecompositionArgumentIncorrectSize);
-			throw exc;
+			throw(math::ExceptionInvalidValue("decompLU: Matrix U argument of incorrect size!"));
 		}
 
+		//omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
+
+		//auto start = std::chrono::steady_clock::now();
+		//#pragma omp parallel for shared(Matrix_L) schedule(static)
+		//for (int i = 0; i < this->cols_; i++)
+		//{
+		//	Matrix_L(i, i) = static_cast<T>(1);
+		//}
+		//
+		//size_t n = this->cols_ * this->rows_;
+		//
+		//#pragma omp parallel for shared(Matrix_L, Matrix_U, n) schedule(static)
+		//for (int pos = 0; pos < n; ++pos)
+		//{
+		//	size_t row = 0;
+		//	size_t col = 0;
+		//	if (this->repr_ == math::MatRep::Row) // row repr
+		//	{
+		//		row = (size_t)std::floor(pos / this->cols_);
+		//		col = pos - row * this->cols_;
+		//	}
+		//	else if (this->repr_ == math::MatRep::Column) // column repr
+		//	{
+		//		col = (size_t)std::floor(pos / this->rows_);
+		//		row = pos - this->rows_ * col;
+		//	}
+		//
+		//	if (row <= col)
+		//	{
+		//		T sum_u = 0.0;
+		//		for (size_t k = 0; k < row; k++)
+		//		{
+		//			sum_u += Matrix_L(row, k) * Matrix_U(k, col);
+		//		}
+		//		Matrix_U(row, col) = this->mvec_[pos] - sum_u;
+		//	}
+		//	if (row > col)
+		//	{
+		//		T sum_l = 0;
+		//		for (size_t k = 0; k < col; k++)
+		//		{
+		//			sum_l += Matrix_L(row, k) * Matrix_U(k, col);
+		//		}
+		//		if (isEqual(Matrix_U(col, col), 0.0))
+		//		{
+		//			throw(math::ExceptionInvalidValue("decompLU: Incorrect input matrix for this method, U(j,j) = 0"));
+		//		}
+		//		Matrix_L(row, col) = (this->mvec_[pos] - sum_l) / Matrix_U(col, col);
+		//	} // if (i > j)
+		//
+		//}
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+
+
+
+		//auto start = std::chrono::steady_clock::now();
 		for (size_t i = 0; i < cols_; i++)
 		{
 			Matrix_L(i, i) = static_cast<T>(1);
@@ -720,10 +779,17 @@ namespace math
 					{
 						sum_l += Matrix_L(i, k) * Matrix_U(k, j);
 					}
+					if (isEqual(Matrix_U(j, j), 0.0))
+					{
+						throw(math::ExceptionInvalidValue("decompLU: Incorrect input matrix for this method, U(j,j) = 0"));
+					}
 					Matrix_L(i, j) = ((*this)(i, j) - sum_l) / Matrix_U(j, j);
 				} // if (i > j)
 			} // for (size_t j = 0; j < cols_; j++)
 		} // for (size_t i = 0; i < cols_; i++)
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+
 	} // Matrix<T>::decompLU
 
 	template<typename T>
@@ -731,10 +797,7 @@ namespace math
 	{
 		if (cols_ != rows_)
 		{
-			std::cerr << "decompLU: matrix must be square!\n";
-			Exception exc(Exception::Type::NonSquareMatrixDecomposition);
-			throw exc;
-			//      exit(3);
+			throw(math::ExceptionNonSquareMatrix("decompLU: matrix must be square!"));
 		}
 		Matrix<T> LUE(rows_, cols_);
 		for (size_t i = 0; i < rows_; i++)
@@ -774,12 +837,11 @@ namespace math
 	{
 		if (this->rows_ != this->cols_)
 		{
-			Exception exc(Exception::Type::NonSquareMatrixDeterminant);
-			throw exc;
+			throw(math::ExceptionNonSquareMatrix("det: matrix must be square!"));
 		}
 		if (this->rows_ == 0 || this->cols_ == 0)
 		{
-			throw Exception::Type::DefaultException;
+			throw(math::ExceptionDegenerateMatrix("det: matrix dimensions is equal to 0!"));
 		}
 		if (this->rows_ == 1) // trivial case - single element
 		{
@@ -820,7 +882,7 @@ namespace math
 	{
 		if (rowsExcl.size() != colsExcl.size())
 		{
-			throw Exception::Type::DefaultException;
+			throw(math::ExceptionInvalidValue(""));
 		}
 		// calculate for determinant of current cofactor
 		// define mask vectors
@@ -867,7 +929,7 @@ namespace math
 			col = static_cast<size_t>(colItr - colsExcl.begin());
 			int exp = 0 + colCofact; // by 1st row (always) and colCofact
 			++colCofact;
-			if (almostEqual((*this)(row, col), 0.))
+			if (isEqual((*this)(row, col), 0.))
 			{
 				++colItr;
 			}
@@ -912,9 +974,7 @@ namespace math
 	{
 		if (A.cols() != B.rows())
 		{
-			std::cerr << "Matrix<T>::operator*: Matrices can't be multiplied\n";
-			Exception exc(Exception::Type::IncorrectSizeForMatrixMultiplication);
-			throw(exc);
+			throw(math::ExceptionInvalidValue("Matrix<T>::operator*: Matrices can't be multiplied!"));
 		}
 		Matrix<T> C(A.rows(), B.cols());
 		for (size_t i = 0; i < A.rows(); ++i)
@@ -955,9 +1015,7 @@ namespace math
 		if (A.cols() != B.cols() ||
 			A.rows() != B.rows())
 		{
-			std::cerr << "Matrix<T>::operator+: Matrices can't be added\n";
-			Exception exc(Exception::Type::NonEqualMatrixSizes);
-			throw(exc);
+			throw(math::ExceptionInvalidValue("Matrix<T>::operator+: Matrices can't be added!"));
 		}
 		Matrix<T> C(A.rows(), A.cols());
 		auto start = std::chrono::steady_clock::now();
@@ -1036,9 +1094,7 @@ namespace math
 	{
 		if (this->rows_ != this->cols_)
 		{
-			std::cerr << "ERROR: Matrix<T>::inverse(): Inverse of non square matrix\n";
-			Exception exc(Exception::Type::NonSquareMatrixInverse);
-			throw exc;
+			throw(math::ExceptionNonSquareMatrix("inverse:Inverse of non square matrix!"));
 		}
 		Matrix<T> X(this->rows(), this->cols()), // inverse matrix
 			L(this->rows(), this->cols()),  // L matrix
@@ -1102,7 +1158,7 @@ namespace math
 		{
 			for (size_t j = 0; j < this->cols_; ++j)
 			{
-				if (!almostEqual((*this)(i, j), M(i, j), eps))
+				if (!isEqual((*this)(i, j), M(i, j)))
 					return false;
 			}
 		}

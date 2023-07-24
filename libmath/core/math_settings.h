@@ -20,7 +20,7 @@ namespace math::settings
 
 		/// @brief Number of threads for parallel executions
 		/// @details If threads = 0 all available cores are used
-		int numThreads = 10;
+		int numThreads = 1;
 	};
 
 	/// @brief Default properties

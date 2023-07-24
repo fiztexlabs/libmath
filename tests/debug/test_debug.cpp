@@ -6,8 +6,11 @@
 
 TEST(Matrix, getTr)
 {
-    math::Matrix<int> m1(12, 10000);
-    math::Matrix<int> m2 = m1.getTr();
+    math::Matrix<double> m1(1000);
+    m1.rfill(2);
+    math::Matrix<double> mL(1000);
+    math::Matrix<double> mU(1000);
+    m1.decompLU(mL, mU);
 	// m2.print();
 }
 

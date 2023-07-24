@@ -74,6 +74,7 @@ set(sources
     libmath/core/math_settings.h
     libmath/core/math_settings.cpp
     libmath/core/matrix.h
+    libmath/core/boolean.h
     libmath/core/pmatrix.h
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
@@ -177,6 +178,31 @@ if(MATH_BUILD_TESTS)
         add_subdirectory(libs/googletest)
     endif()
     add_subdirectory(tests)
+    
+    # module tests
+
+    add_executable ( libmath-matrix-test )    
+    if(GTest_FOUND)
+        target_link_libraries( libmath-matrix-test
+           PRIVATE
+               libmath::libmath
+               GTest::GTest
+               GTest::Main
+        )
+    else()
+        target_link_libraries( libmath-matrix-test
+           PRIVATE
+               libmath::libmath
+               gtest
+               gtest_main
+        )
+    endif()
+    set(MatrixTestSources
+        libmath/core/matrix.test.cpp
+    )
+    target_sources ( libmath-matrix-test PRIVATE ${MatrixTestSources} )
+
+
 endif()
 
 if(MATH_BUILD_EXAMPLES)

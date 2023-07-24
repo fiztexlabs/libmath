@@ -40,9 +40,9 @@ namespace math
 
 		RudeType diff = abs(static_cast<RudeType>(A) - static_cast<RudeType>(B));
 
-		RudeType largest = (abs(B) > abs(A)) ? abs(B) : abs(A);
+		//RudeType largest = (abs(B) > abs(A)) ? abs(B) : abs(A);
 
-		if (diff <= largest * static_cast<RudeType>(math::settings::CurrentSettings.targetTolerance))
+		if (diff <= static_cast<RudeType>(math::settings::CurrentSettings.targetTolerance))
 		{
 			return true;
 		}

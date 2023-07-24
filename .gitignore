@@ -1,0 +1,24 @@
+# Build folders
+build*/
+_build*/
+out*/
+_out*/
+cmake-build*/
+doc/doxygen*/
+
+# CMake
+CMakeUserPresets.json
+CMakeLists.txt.user
+
+# IDEs
+.idea/
+.vs/
+.vscode/
+_ReSharper.Caches/
+Win32-Debug/
+Win32-Release/
+x64-Debug/
+x64-Release/
+
+# Mac
+.DS_Store

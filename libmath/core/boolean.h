@@ -1,5 +1,7 @@
 #pragma once
 #include <type_traits>
+#include <cmath>
+#include <limits>
 #include <libmath/core/math_settings.h>
 
 namespace math
@@ -38,7 +40,7 @@ namespace math
 			std::is_floating_point<T1>::value),
 			T1, T>::type RudeType;
 
-		RudeType diff = abs(static_cast<RudeType>(A) - static_cast<RudeType>(B));
+		RudeType diff = std::abs(static_cast<RudeType>(A) - static_cast<RudeType>(B));
 
 		//RudeType largest = (abs(B) > abs(A)) ? abs(B) : abs(A);
 
@@ -51,6 +53,17 @@ namespace math
 			return false;
 		}
 	}
+
+	/// @brief check T for numeric types
+	template<typename T>
+	constexpr bool isNumeric =
+		std::is_same<T, int>::value ||
+		std::is_same<T, long int>::value ||
+		std::is_same<T, unsigned int>::value ||
+		std::is_same<T, float>::value ||
+		std::is_same<T, double>::value ||
+		std::is_same<T, long double>::value;
+
 	/**
 	* @}
 	*/

@@ -42,6 +42,20 @@ namespace math
 	};
 
 	/**
+	* @brief Exception index out of bound
+	*/
+	class ExceptionIndexOutOfBounds :
+		public Exception
+	{
+	public:
+		ExceptionIndexOutOfBounds(const std::string& m)
+			: Exception(m)
+		{
+			type_ = "IndexOutOfBounds";
+		}
+	};
+
+	/**
 	* @brief Exception non-square matrix
 	*/
 	class ExceptionNonSquareMatrix :
@@ -66,6 +80,20 @@ namespace math
 			: Exception(m)
 		{
 			type_ = "DegenerateMatrix";
+		}
+	};
+
+	/**
+	* @brief Exception incorrect matrix
+	*/
+	class ExceptionIncorrectLASMatrix :
+		public Exception
+	{
+	public:
+		ExceptionIncorrectLASMatrix(const std::string& m)
+			: Exception(m)
+		{
+			type_ = "IncorrectLASMatrix";
 		}
 	};
 }

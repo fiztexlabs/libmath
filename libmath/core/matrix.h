@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libmath/core/exception.h>
+#include <libmath/core/math_exception.h>
 #include <libmath/core/math_settings.h>
 #include <libmath/core/boolean.h>
 
@@ -197,7 +197,7 @@ namespace math
 		/**
 		* @brief Matrix p-norm (<a href="http://num-anal.srcc.msu.ru/prac_pos/poslist/posobie%206%20zadachi%20normy.pdf">Арушанян, 2-5)</a>)
 		*/
-		T norm(const int p);
+		auto pnorm(const int p);
 
 		/**
 		 * @brief Check equality of the two matrices of the same type <T>
@@ -488,6 +488,15 @@ namespace math
 	template <typename T>
 	T& Matrix<T>::operator()(size_t row, size_t col)
 	{
+		if (row >= this->rows_)
+		{
+			throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): row index out of bounds!"));
+		}
+		if (col >= this->cols_)
+		{
+			throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): col index out of bounds!"));
+		}
+
 		size_t pos{ 0 };
 		if (this->repr_ == math::MatRep::Row) // row repr
 			pos = row * cols_ + col;
@@ -499,6 +508,15 @@ namespace math
 	template <typename T>
 	T Matrix<T>::operator()(size_t row, size_t col) const
 	{
+		if (row >= this->rows_)
+		{
+			throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): row index out of bounds!"));
+		}
+		if (col >= this->cols_)
+		{
+			throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): col index out of bounds!"));
+		}
+
 		size_t pos{ 0 };
 		if (this->repr_ == math::MatRep::Row) // row repr
 			pos = row * cols_ + col;
@@ -512,11 +530,11 @@ namespace math
 	{
 		if (repr_ != math::MatRep::Row)
 		{
-			throw(math::ExceptionInvalidValue("Incorrect matrix represrntation for index operator"));
+			throw(math::ExceptionInvalidValue("Matrix<T>::operator[]: Incorrect matrix represrntation for index operator"));
 		}
 		if (index > rows_ - 1)
 		{
-			throw(math::ExceptionInvalidValue("Index out of bounds"));
+			throw(math::ExceptionIndexOutOfBounds("Matrix<T>::operator[]: Index out of bounds"));
 		}
 		return &mvec_[index * cols_];
 	}
@@ -532,7 +550,7 @@ namespace math
 	{
 		std::srand(seed);
 		std::generate(mvec_.begin(), mvec_.end(), []() {
-			return rand() % 100;
+			return (rand() % 100) / 100.0;
 			});
 	}
 	template <typename T>
@@ -586,13 +604,11 @@ namespace math
 	template <typename T>
 	Matrix<T> Matrix<T>::getTr() const
 	{
-		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
-
 		Matrix<T> M_T(this->cols_, this->rows_);
 		//int pos = 0;
 		size_t n = this->numel();
 
-		auto start = std::chrono::steady_clock::now();
+		//auto start = std::chrono::steady_clock::now();
 		#pragma omp parallel for shared(M_T, n) schedule(static)
 		for (int pos = 0; pos < n; ++pos)
 		{
@@ -608,19 +624,17 @@ namespace math
 				col = (size_t)std::floor(pos / this->rows_);
 				row = pos - this->rows_ * col;
 			}
-			M_T(col, row) = this->mvec_[pos];
+			M_T(col, row) = this->mvec_.at(pos);
 			
 		}
-		auto end = std::chrono::steady_clock::now();
-		std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return M_T;
 	}
 
 	template <typename T>
 	void Matrix<T>::tr()
 	{
-		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
-
 		Matrix<T> M_T(this->cols_, this->rows_);
 		size_t n = this->numel();
 
@@ -640,7 +654,7 @@ namespace math
 				col = (size_t)std::floor(pos / this->rows_);
 				row = pos - this->rows_ * col;
 			}
-			M_T(col, row) = this->mvec_[pos];
+			M_T(col, row) = this->mvec_.at(pos);
 
 		}
 		//auto end = std::chrono::steady_clock::now();
@@ -652,17 +666,15 @@ namespace math
 	}
 
 	template <typename T>
-	T Matrix<T>::norm(const int p)
+	auto Matrix<T>::pnorm(const int p)
 	{
-		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
-
 		T norm = static_cast<T>(0.0);
 		size_t n = this->numel();
 
-		#pragma omp parallel for shared(n, p, mvec_) reduction(+:norm) schedule(static)
+		#pragma omp parallel for shared(n, p) reduction(+:norm)
 		for (int pos = 0; pos < n; ++pos)
 		{
-			norm += pow(this->mvec_[pos], p);
+			norm += pow(std::abs(this->mvec_.at(pos)), p);
 		}
 		return pow(norm, (1.0 / p));
 	}
@@ -951,8 +963,6 @@ namespace math
 	template <typename T>
 	Matrix<T> operator*(const Matrix<T>& M, T n)
 	{
-		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
-
 		Matrix<T> mul_M(M.rows(), M.cols());
 		size_t el = M.numel();
 
@@ -960,7 +970,7 @@ namespace math
 		#pragma omp parallel for shared(mul_M, el) schedule(static)
 		for (int pos = 0; pos < el; ++pos)
 		{
-			mul_M.mvec_[pos] = M.mvec_[pos] * n;
+			mul_M.mvec_.at(pos) = M.mvec_.at(pos) * n;
 		}
 		//auto end = std::chrono::steady_clock::now();
 		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
@@ -978,7 +988,7 @@ namespace math
 		#pragma omp parallel for shared(el) schedule(static)
 		for (int pos = 0; pos < el; ++pos)
 		{
-			this->mvec_[pos] *= n;
+			this->mvec_.at(pos) *= n;
 		}
 		//auto end = std::chrono::steady_clock::now();
 		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
@@ -994,33 +1004,18 @@ namespace math
 		}
 
 		Matrix<T> C(A.rows(), B.cols());
-		size_t n = A.numel();
-
-		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
 
 		//auto start = std::chrono::steady_clock::now();		
-		#pragma omp parallel for shared(A, B, C, n) schedule(static)
-		for (int pos = 0; pos < n; ++pos)
+		#pragma omp parallel for shared(A, B, C) schedule(static)
+		for (int i = 0; i < A.rows(); ++i)
 		{
-			size_t row = 0;
-			size_t col = 0;
-			if (A.repr_ == math::MatRep::Row) // row repr
+			for (int j = 0; j < B.cols(); ++j)
 			{
-				row = (size_t)std::floor(pos / A.cols_);
-				col = pos - row * A.cols_;
+				for (int k = 0; k < A.cols(); ++k)
+				{
+					C(i, j) += A(i, k) * static_cast<T>(B(k, j));
+				}
 			}
-			else if (A.repr_ == math::MatRep::Column) // column repr
-			{
-				col = (size_t)std::floor(pos / A.rows_);
-				row = pos - A.rows_ * col;
-			}
-
-			for (int k = 0; k < A.cols(); ++k)
-			{
-				C(row, col) += A(row, k) * static_cast<T>(B(k, col));
-			}
-		
-		
 		}
 		//auto end = std::chrono::steady_clock::now();
 		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
@@ -1040,10 +1035,16 @@ namespace math
 	Matrix<T> operator+(const Matrix<T>& M, T n)
 	{
 		Matrix<T> sum_M(M.rows(), M.cols());
-		for (size_t i = 0; i < sum_M.numel(); ++i)
+		size_t el = sum_M.numel();
+
+		//auto start = std::chrono::steady_clock::now();		
+		#pragma omp parallel for shared(sum_M, M, n, el) schedule(static)
+		for (int i = 0; i < el; ++i)
 		{
 			sum_M.mvec_.at(i) = M.mvec_.at(i) + n;
 		}
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return sum_M;
 	};
 
@@ -1055,17 +1056,18 @@ namespace math
 		{
 			throw(math::ExceptionInvalidValue("Matrix<T>::operator+: Matrices can't be added!"));
 		}
+
 		Matrix<T> C(A.rows(), A.cols());
-		auto start = std::chrono::steady_clock::now();
-		for (size_t i = 0; i < A.rows(); ++i)
+		size_t el = C.numel();
+
+		//auto start = std::chrono::steady_clock::now();
+		#pragma omp parallel for shared(A, B, C, el) schedule(static)
+		for (int i = 0; i < el; ++i)
 		{
-			for (size_t j = 0; j < B.cols(); ++j)
-			{
-				C(i, j) += A(i, j) + B(i, j);
-			}
+			C.mvec_.at(i) = A.mvec_.at(i) + B.mvec_.at(i);
 		}
-		auto end = std::chrono::steady_clock::now();
-		std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
 		return C;
 	};
@@ -1080,17 +1082,21 @@ namespace math
 
 
 
-
-
 	template<typename T>
 	Matrix<T> operator-(const Matrix<T>& M, T n)
 	{
-		Matrix<T> sum_M(M.rows(), M.cols());
-		for (size_t i = 0; i < sum_M.numel(); ++i)
+		Matrix<T> diff_M(M.rows(), M.cols());
+		size_t el = diff_M.numel();
+
+		//auto start = std::chrono::steady_clock::now();		
+		#pragma omp parallel for shared(diff_M, M, n, el) schedule(static)
+		for (int i = 0; i < el; ++i)
 		{
-			sum_M.mvec_.at(i) = M.mvec_.at(i) - n;
+			diff_M.mvec_.at(i) = M.mvec_.at(i) - n;
 		}
-		return sum_M;
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		return diff_M;
 	};
 
 	template<typename T>
@@ -1099,18 +1105,20 @@ namespace math
 		if (A.cols() != B.cols() ||
 			A.rows() != B.rows())
 		{
-			std::cerr << "Matrix<T>::operator-: Matrices can't be subtracted\n";
-			Exception exc(Exception::Type::NonEqualMatrixSizes);
-			throw(exc);
+			throw(math::ExceptionInvalidValue("Matrix<T>::operator-: Matrices can't be subtracted!"));
 		}
+
 		Matrix<T> C(A.rows(), A.cols());
-		for (size_t i = 0; i < A.rows(); ++i)
+		size_t el = C.numel();
+
+		//auto start = std::chrono::steady_clock::now();
+		#pragma omp parallel for shared(A, B, C, el) schedule(static)
+		for (int i = 0; i < el; ++i)
 		{
-			for (size_t j = 0; j < B.cols(); ++j)
-			{
-				C(i, j) += A(i, j) - B(i, j);
-			}
+			C.mvec_.at(i) = A.mvec_.at(i) - B.mvec_.at(i);
 		}
+		//auto end = std::chrono::steady_clock::now();
+		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return C;
 	};
 
@@ -1121,11 +1129,6 @@ namespace math
 		(*this) = Mm;
 		return *this;
 	}
-
-
-
-
-
 
 	template<typename T>
 	Matrix<T> Matrix<T>::inverse()

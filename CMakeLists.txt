@@ -70,12 +70,12 @@ endif()
 generate_export_header(libmath EXPORT_FILE_NAME include/libmath/${export_file_name})
 
 set(sources
-    libmath/core/exception.h
+    libmath/core/math_exception.h
     libmath/core/math_settings.h
     libmath/core/math_settings.cpp
     libmath/core/matrix.h
     libmath/core/boolean.h
-    libmath/core/pmatrix.h
+    libmath/core/las.h
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
@@ -201,6 +201,29 @@ if(MATH_BUILD_TESTS)
         libmath/core/matrix.test.cpp
     )
     target_sources ( libmath-matrix-test PRIVATE ${MatrixTestSources} )
+
+
+
+    add_executable ( libmath-las-test )    
+    if(GTest_FOUND)
+        target_link_libraries( libmath-las-test
+           PRIVATE
+               libmath::libmath
+               GTest::GTest
+               GTest::Main
+        )
+    else()
+        target_link_libraries( libmath-las-test
+           PRIVATE
+               libmath::libmath
+               gtest
+               gtest_main
+        )
+    endif()
+    set(LASTestSources
+        libmath/core/las.test.cpp
+    )
+    target_sources ( libmath-las-test PRIVATE ${LASTestSources} )
 
 
 endif()

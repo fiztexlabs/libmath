@@ -1,5 +1,5 @@
 #include <libmath/core/math_settings.h>
-#include <libmath/core/exception.h>
+#include <libmath/core/math_exception.h>
 
 void math::settings::setTargetTolerance(const math::real tol)
 {

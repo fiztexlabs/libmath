@@ -2,8 +2,10 @@
 #include <iostream>
 #include <libmath/core/matrix.h>
 
+
 TEST(Matrix, CreateEmpty)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1;
 	math::Matrix<float> m2;
 	math::Matrix<double> m3;
@@ -11,6 +13,7 @@ TEST(Matrix, CreateEmpty)
 
 TEST(Matrix, CreateSquare)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1(10);
 	math::Matrix<float> m2(10);
 	math::Matrix<double> m3(10);
@@ -18,6 +21,7 @@ TEST(Matrix, CreateSquare)
 
 TEST(Matrix, CreateVectors)
 {
+	omp_set_num_threads(4);
 	std::vector<int> v1{ 1, 2, 3 };
 	math::Matrix<int> m1(v1);
 	math::Matrix<int> m1_hor(v1, false);
@@ -38,6 +42,7 @@ TEST(Matrix, CreateVectors)
 
 TEST(Matrix, CreateFromList_and_cols_rows)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -62,6 +67,7 @@ TEST(Matrix, CreateFromList_and_cols_rows)
 
 TEST(Matrix, IncorrectInitializationByList)
 {
+	omp_set_num_threads(4);
 	// Try incorrect initialization
 	try
 	{
@@ -80,6 +86,7 @@ TEST(Matrix, IncorrectInitializationByList)
 
 TEST(Matrix, at)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -102,6 +109,7 @@ TEST(Matrix, at)
 
 TEST(Matrix, ColumnRep)
 {
+	omp_set_num_threads(4);
 	// testing for column representation
 	math::Matrix<int> m3(3, math::MatRep::Column);
 	int num = 1;
@@ -117,8 +125,21 @@ TEST(Matrix, ColumnRep)
 	EXPECT_EQ(gold == m3.vectorized(), true);
 }
 
+TEST(Matrix, pnorm)
+{
+	omp_set_num_threads(4);
+	math::Matrix<int> m1 =
+	{
+		{2, 3, -1},
+		{1, -4, 5},
+		{2, 1, 8}
+	};
+	EXPECT_EQ(math::isEqual(m1.pnorm(2), 11.180339887499), true);
+}
+
 TEST(Matrix, getTr)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -133,6 +154,7 @@ TEST(Matrix, getTr)
 
 TEST(Matrix, tr)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -148,6 +170,7 @@ TEST(Matrix, tr)
 
 TEST(Matrix, CopyConstructor)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -158,6 +181,7 @@ TEST(Matrix, CopyConstructor)
 
 TEST(Matrix, CheckEqualOperator)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -176,6 +200,7 @@ TEST(Matrix, CheckEqualOperator)
 
 TEST(Matrix, det)
 {
+	omp_set_num_threads(4);
 	math::Matrix<double> m1 =
 	{
 	  {2,3,-4,2,3},
@@ -192,6 +217,7 @@ TEST(Matrix, det)
 
 TEST(Matrix, decompLU)
 {
+	omp_set_num_threads(4);
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -226,6 +252,7 @@ TEST(Matrix, decompLU)
 
 TEST(Matrix, multByNumber)
 {
+	omp_set_num_threads(4);
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -262,6 +289,7 @@ TEST(Matrix, multByNumber)
 
 TEST(Matrix, MatrixMultiplication)
 {
+	omp_set_num_threads(4);
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -277,10 +305,67 @@ TEST(Matrix, MatrixMultiplication)
 	EXPECT_EQ(m1 == mL1, true);
 	mU1 *= mL; // mU1 = mU1 * mL
 	EXPECT_EQ(m1 == mU1, false);
+
+	math::Matrix<double> v1 =
+	{
+		{1},
+		{3},
+		{5}
+	};
+	// truth m1*m2
+	math::Matrix<double> v2 =
+	{
+		{4},
+		{18},
+		{-3}
+	};
+	EXPECT_EQ(v2 == (m1 * v1), true);
+
+
+}
+
+TEST(Matrix, SubtractNumber)
+{
+	omp_set_num_threads(4);
+	math::Matrix<double> m1 =
+	{
+	  {2,-1,1},
+	  {4,3,1},
+	  {6,-13,6}
+	};
+	// subtract with 3 truth
+	math::Matrix<double> m_truth =
+	{
+	  {-1,-4,-2},
+	  {1,0,-2},
+	  {3,-16,3}
+	};
+	auto m3 = m1 - static_cast<double>(3);
+	auto m4 = 3. - m1;
+	EXPECT_EQ(m3 == m_truth, true);
+	EXPECT_EQ(m4 == m_truth, true);
+	m1 -= 3.;
+	EXPECT_EQ(m1 == m_truth, true);
+}
+
+TEST(Matrix, SubtractMatrix)
+{
+	omp_set_num_threads(4);
+	math::Matrix<double> m1 =
+	{
+	  {2,-1,1},
+	  {4,3,1},
+	  {6,-13,6}
+	};
+	math::Matrix<double> m2 = 2 * m1;
+	EXPECT_EQ(m1 == (m2 - m1), true);
+	m2 -= m1;
+	EXPECT_EQ(m2 == m1, true);
 }
 
 TEST(Matrix, AddNumber)
 {
+	omp_set_num_threads(4);
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -305,6 +390,7 @@ TEST(Matrix, AddNumber)
 
 TEST(Matrix, AddMatrix)
 {
+	omp_set_num_threads(4);
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -319,6 +405,7 @@ TEST(Matrix, AddMatrix)
 
 TEST(Matrix, Inverse)
 {
+	omp_set_num_threads(4);
 	math::Matrix<double> m1 =
 	{
 	  {2,3,-4,2,3},
@@ -342,6 +429,7 @@ TEST(Matrix, Inverse)
 
 TEST(Matrix, IndexOperator)
 {
+	omp_set_num_threads(4);
 	math::Matrix<int> m1 =
 	{
 	  {2,-1,1},
@@ -360,16 +448,16 @@ TEST(Matrix, IndexOperator)
 	catch (const math::ExceptionInvalidValue & exc)
 	{
 		//    std::cout << "*** Caught exception: " << exc.what() << std::endl;
-		EXPECT_EQ(std::string("Incorrect matrix represrntation for index operator"), exc.what());
+		EXPECT_EQ(std::string("Matrix<T>::operator[]: Incorrect matrix represrntation for index operator"), exc.what());
 	}
 
 	try {
 		m1[3][2] = 5;
 	}
-	catch (const math::ExceptionInvalidValue & exc)
+	catch (const math::ExceptionIndexOutOfBounds & exc)
 	{
 		//    std::cout << "*** Caught exception: " << exc.what() << std::endl;
-		EXPECT_EQ(std::string("Index out of bounds"), exc.what());
+		EXPECT_EQ(std::string("Matrix<T>::operator[]: Index out of bounds"), exc.what());
 	}
 
 }

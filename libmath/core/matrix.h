@@ -181,7 +181,7 @@ namespace math
 		/**
 		* @brief Print matrix to string. Specified by format
 		*/
-		void image(std::string& img, int prec = 5);
+		void print(std::string& img, int prec = 5);
 
 		/**
 		 * @brief Get transposed matrix
@@ -274,7 +274,8 @@ namespace math
 
 		/**
 		* @brief Multiplication of a matrix by a matrix
-		* @detailed The type of matrix returned is the same as the type of a first argument
+		* @detailed The type of matrix returned is the same as the type of a first argument.
+		* (<a href="https://users.cs.utah.edu/~hari/teaching/paralg/tutorial/05_Cannons.html">Cannon's algorithm)</a>) used for multithreaded matrix multiplication.
 		* @throw Exception::Type::IncorrectSizeForMatrixMultiplication
 		* @return Multiplication of matrices
 		*/
@@ -585,7 +586,7 @@ namespace math
 	}
 
 	template <typename T>
-	void Matrix<T>::image(std::string& img, int /*prec*/)
+	void Matrix<T>::print(std::string& img, int /*prec*/)
 	{
 		std::stringstream buffer;
 
@@ -949,6 +950,7 @@ namespace math
 			{
 				colsExcl.at(col) = 1;
 				++iteration;
+				/// @bug Inf calling?
 				auto addDtrm = detIterative(iteration, rowsExcl, colsExcl);
 				dtrm += addDtrm * (*this)(row, col) * std::pow(-1., exp);
 				colsExcl.at(col) = 0;
@@ -980,8 +982,6 @@ namespace math
 	template <typename T>
 	Matrix<T>& Matrix<T>::operator*=(T n)
 	{
-		omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
-
 		size_t el = this->numel();
 
 		//auto start = std::chrono::steady_clock::now();
@@ -1007,14 +1007,15 @@ namespace math
 
 		//auto start = std::chrono::steady_clock::now();		
 		#pragma omp parallel for shared(A, B, C) schedule(static)
-		for (int i = 0; i < A.rows(); ++i)
+		for (int pos = 0; pos < C.numel(); ++pos)
 		{
-			for (int j = 0; j < B.cols(); ++j)
+			// row representation for matrix C by default
+			size_t row = (size_t)std::floor(pos / C.cols_);
+			size_t col = pos - row * C.cols_;
+
+			for (int k = 0; k < A.cols_; ++k)
 			{
-				for (int k = 0; k < A.cols(); ++k)
-				{
-					C(i, j) += A(i, k) * static_cast<T>(B(k, j));
-				}
+				C.mvec_[pos] += A(row, k) * B(k, col);
 			}
 		}
 		//auto end = std::chrono::steady_clock::now();

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <gtest/gtest.h>
-#include <libmath/core/matrix.h>
+#include <libmath/matrix.h>
 
 TEST(Matrix, MulMbyM)
 {

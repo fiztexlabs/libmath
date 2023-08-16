@@ -2,7 +2,7 @@
 #include <type_traits>
 #include <cmath>
 #include <limits>
-#include <libmath/core/math_settings.h>
+#include <libmath/math_settings.h>
 
 namespace math
 {

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include <libmath/core/matrix.h>
+#include <libmath/matrix.h>
 
 
 TEST(Matrix, CreateEmpty)

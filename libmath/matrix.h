@@ -1,8 +1,8 @@
 #pragma once
 
-#include <libmath/core/math_exception.h>
-#include <libmath/core/math_settings.h>
-#include <libmath/core/boolean.h>
+#include <libmath/math_exception.h>
+#include <libmath/math_settings.h>
+#include <libmath/boolean.h>
 
 #include <vector>
 #include <iostream>

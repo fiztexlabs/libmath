@@ -8,13 +8,11 @@ namespace math
 {
 	/**
 	* @brief Types of stopping criteria.
-	* - direct: Direct methods no need for stopping criteria
 	* - iterations: Stopping solver by target iterations
 	* - tolerance: Stopping solver by target tolerance
 	*/
 	enum class StoppingCriteriaType
 	{
-		direct,
 		iterations,
 		tolerance
 	};
@@ -41,6 +39,12 @@ namespace math
 	template <typename T>
 	class LASsolver
 	{
+	protected:
+		/// @brief Current solver settings
+		LASsetup currentSetup_;
+
+		/// @brief Method's name
+		std::string method_ = "";
 	public:
 
 		/**
@@ -62,13 +66,19 @@ namespace math
 		* @brief Get solver settings
 		* @param setup[out]: Solver settings
 		*/
-		virtual void getSolverSetup(LASsetup& setup) = 0;
+		void getSolverSetup(LASsetup& setup)
+		{
+			setup = currentSetup_;
+		};
 
 		/**
 		* @brief Get method name
 		* @param mathod[out]: Solving method
 		*/
-		virtual void getMethod(std::string& method) = 0;
+		void getMethod(std::string& method)
+		{
+			method = method_;
+		}
 	};
 
 }

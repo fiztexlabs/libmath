@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libmath/solver/lassolver.h>
+#include <libmath/solver/las/lassolver.h>
 #include <libmath/math_settings.h>
 #include <libmath/math_exception.h>
 #include <vector>
@@ -17,12 +17,6 @@ namespace math
 		public LASsolver<T>
 	{
 	private:
-		/// @brief Current solver settings
-		LASsetup currentSetup_;
-
-		/// @brief Method's name
-		std::string method_ = "BicGStab";
-
 		/**
 		* @brief Service function for checking input settings
 		*/
@@ -43,7 +37,10 @@ namespace math
 
 	public:
 		/// @brief Default constructor
-		BicGStab() {};
+		BicGStab() 
+		{
+			method_ = "BicGStab";
+		};
 
 		/**
 		* @brief BicGStab solver constructor.
@@ -51,6 +48,8 @@ namespace math
 		*/
 		BicGStab(const LASsetup& setup)
 		{
+			method_ = "BicGStab";
+
 			checkInputs(setup);
 
 			currentSetup_ = setup;
@@ -197,17 +196,5 @@ namespace math
 
 			currentSetup_ = setup;
 		};
-
-		/// @brief LASsolver::solve
-		virtual void getSolverSetup(LASsetup& setup) override
-		{
-			setup = currentSetup_;
-		};
-
-		/// @brief LASsolver::getMethod
-		virtual void getMethod(std::string& method) override
-		{
-			method = method_;
-		}
 	};
 }

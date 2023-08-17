@@ -75,8 +75,9 @@ set(sources
     libmath/math_settings.cpp
     libmath/matrix.h
     libmath/boolean.h
-    libmath/solver/lassolver.h
-    libmath/solver/bicgstab.h
+    libmath/solver/las/lassolver.h
+    libmath/solver/las/bicgstab.h
+    libmath/solver/las/kholetsky.h
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
@@ -222,7 +223,7 @@ if(MATH_BUILD_TESTS)
         )
     endif()
     set(LASTestSources
-        libmath/solver/lassolver.test.cpp
+        libmath/solver/las/lassolver.test.cpp
     )
     target_sources ( libmath-lassolver-test PRIVATE ${LASTestSources} )
 

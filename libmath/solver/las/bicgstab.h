@@ -17,25 +17,6 @@ namespace math
 	class BicGStab :
 		public LASsolver<T>
 	{
-	private:
-		/**
-		* @brief Service function for checking input settings
-		*/
-		void checkInputs(const LASsetup& setup)
-		{
-			if (setup.criteria == LASStoppingCriteriaType::tolerance)
-			{
-				if (setup.targetTolerance < 0.0)
-				{
-					throw(math::ExceptionInvalidValue("BicGStab: Invalid target tolerance. Tolerance must be positive number!"));
-				}
-				if (setup.targetTolerance == 0.0)
-				{
-					throw(math::Exception("BicGStab: Invalid target tolerance. Tolerance must be greater than 0!"));
-				}
-			}
-		};
-
 	public:
 		/// @brief Default constructor
 		BicGStab() 
@@ -164,13 +145,5 @@ namespace math
 			auto end = std::chrono::steady_clock::now();
 			std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		}
-
-		/// @brief LASsolver::solve
-		virtual void setupSolver(const LASsetup& setup) override
-		{
-			checkInputs(setup);
-
-			currentSetup_ = setup;
-		};
 	};
 }

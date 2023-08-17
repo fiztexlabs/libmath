@@ -87,6 +87,24 @@ namespace math
 
 		/// @brief Method's name
 		std::string method_ = "";
+
+		/**
+		* @brief Service function for checking input settings
+		*/
+		void checkInputs(const LASsetup& setup)
+		{
+			if (setup.criteria == LASStoppingCriteriaType::tolerance)
+			{
+				if (setup.targetTolerance < 0.0)
+				{
+					throw(math::ExceptionInvalidValue(method_ + ": Invalid target tolerance. Tolerance must be positive number!"));
+				}
+				if (setup.targetTolerance == 0.0)
+				{
+					throw(math::Exception(method_ + ": Invalid target tolerance. Tolerance must be greater than 0!"));
+				}
+			}
+		};
 	public:
 
 		/**
@@ -102,7 +120,12 @@ namespace math
 		* @brief Set solver settings
 		* @param setup: Solver settings
 		*/
-		virtual void setupSolver(const LASsetup& setup) = 0;
+		void setupSolver(const LASsetup& setup)
+		{
+			checkInputs(setup);
+
+			currentSetup_ = setup;
+		};
 
 		/**
 		* @brief Get solver settings

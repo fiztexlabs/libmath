@@ -46,11 +46,5 @@ namespace math
 				x(i, 0) = x(i, 0) / LUE(i, i);
 			}
 		}
-
-		/// @brief No need setup for direct method
-		virtual void setupSolver(const LASsetup& setup) override
-		{
-			return void();
-		};
 	};
 }

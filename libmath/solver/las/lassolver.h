@@ -2,6 +2,7 @@
 
 #include <libmath/matrix.h>
 #include <libmath/math_settings.h>
+#include <omp.h>
 #include <string>
 
 namespace math
@@ -34,7 +35,42 @@ namespace math
 
 	/**
 	* @brief Interfacial class for solving linear algebraic systems (LAS) of view 
-	* of view @f$ \mathbf{A}\mathbf{x} = \mathbf{b} @f$
+	* of view @f$ \mathbf{A}\mathbf{x} = \mathbf{b} @f$.
+	* @details Usage on the BicGStab example:
+	* @code
+	* 
+	* #include <libmath/solver/las/bicgstab.h>
+	* #include <omp.h>
+	* 
+	* int main()
+	* {
+	*	  // set threads number for parallelization
+	*     omp_set_num_threads(1);
+	*	
+	*	  // set LAS dimension
+	*     size_t dim = 10;
+	* 
+	*	  // generate matrix of LAS coefficients
+	*     math::Matrix<double> A(dim);
+	*     A.rfill(1);
+	* 
+	* 	  // generate column-vector of right-parts
+	*     math::Matrix<double> b(dim, 1);
+	*     b.rfill(2);
+	* 
+	* 	  // set initial guess to x column-vector
+	*     math::Matrix<double> x(dim, 1);
+	*     x.fill(0.0);
+	* 
+	* 	  // create solver with default setup
+	*     math::BicGStab<double> bicgstab_solver;
+	* 
+	* 	  // solve system
+	*     bicgstab_solver.solve(A, b, x);
+	* 
+	*     (A*x - b).print();
+	* }
+	* @endcode
 	*/
 	template <typename T>
 	class LASsolver

@@ -6,7 +6,7 @@
 namespace math
 {
 	/**
-	* @brief Class for solving LAS with Kholetsky method
+	* @brief Class for solving LAS with Kholetsky method (via LU-decomposition)
 	*/
 	template <typename T>
 	class Kholetsky :

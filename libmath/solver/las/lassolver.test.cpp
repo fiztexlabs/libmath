@@ -4,6 +4,7 @@
 #include <libmath/solver/las/lassolver.h>
 #include <libmath/solver/las/bicgstab.h>
 #include <libmath/solver/las/kholetsky.h>
+#include <omp.h>
 
 
 TEST(LAS, BicGStab)

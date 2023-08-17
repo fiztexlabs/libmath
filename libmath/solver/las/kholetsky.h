@@ -16,7 +16,9 @@ namespace math
 		Kholetsky()
 		{
 			method_ = "Kholetsky";
-		}
+		};
+
+		virtual ~Kholetsky() {};
 
 		/// @brief LASsolver::solve
 		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) override

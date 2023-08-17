@@ -133,6 +133,7 @@ namespace math
 			}
 		}
 	public:
+		virtual ~LASsolver() {};
 
 		/**
 		* @brief Solve LAS

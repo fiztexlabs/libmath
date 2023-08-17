@@ -27,6 +27,8 @@ namespace math
 			method_ = "Secant";
 		};
 
+        virtual ~Secant() {};
+
 		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) override
 		{
             // check inputs

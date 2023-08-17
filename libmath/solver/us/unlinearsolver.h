@@ -29,6 +29,11 @@ namespace math
 	*/
 	struct USsetup
 	{
+		~USsetup()
+		{
+			linearSolver->~LASsolver();
+		}
+
 		/// @brief Stopping criteria
 		USStoppingCriteriaType criteria = USStoppingCriteriaType::tolerance;
 
@@ -52,7 +57,8 @@ namespace math
 
 		/// @brief Internal linear system solver
 		/// @see LASsolver
-		std::unique_ptr<LASsolver<real>> linearSolver = std::make_unique<BicGStab<real>>();
+		//std::unique_ptr<LASsolver<real>> linearSolver = std::make_unique<BicGStab<real>>();
+		LASsolver<real>* linearSolver = new BicGStab<real>();
 
 	};
 
@@ -162,6 +168,7 @@ namespace math
 			}
 		};
 	public:
+		virtual ~UnlinearSolver() {};
 
 		/**
 		* @brief Find roots of system @f$ F(x) = 0 @f$

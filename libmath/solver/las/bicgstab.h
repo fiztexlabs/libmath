@@ -37,6 +37,8 @@ namespace math
 			currentSetup_ = setup;
 		}
 
+		virtual ~BicGStab() {};
+
 		/**
 		* @brief LASsolver::solve
 		*/

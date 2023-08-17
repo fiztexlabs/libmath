@@ -171,7 +171,7 @@ namespace math
 		* @brief Fill matrix by random values with seed seed
 		* @param seed: Seed for random generatoe
 		*/
-		void rfill(T seed);
+		void rfill(unsigned int seed);
 
 		/**
 		 * @brief Print Matrix to std out. Specified by format
@@ -547,7 +547,7 @@ namespace math
 	}
 
 	template <typename T>
-	void Matrix<T>::rfill(T seed)
+	void Matrix<T>::rfill(unsigned int seed)
 	{
 		std::srand(seed);
 		std::generate(mvec_.begin(), mvec_.end(), []() {
@@ -675,9 +675,9 @@ namespace math
 		#pragma omp parallel for shared(n, p) reduction(+:norm)
 		for (int pos = 0; pos < n; ++pos)
 		{
-			norm += pow(std::abs(this->mvec_.at(pos)), p);
+			norm += std::pow(std::abs(this->mvec_.at(pos)), p);
 		}
-		return pow(norm, (1.0 / p));
+		return std::pow(norm, (1.0 / p));
 	}
 	template <typename T>
 	bool operator==(const Matrix<T>& m1, Matrix<T> const& m2)
@@ -940,7 +940,7 @@ namespace math
 			if (colItr == colsExcl.end())
 				break;
 			col = static_cast<size_t>(colItr - colsExcl.begin());
-			int exp = 0 + colCofact; // by 1st row (always) and colCofact
+			size_t exp = 0 + colCofact; // by 1st row (always) and colCofact
 			++colCofact;
 			if (isEqual((*this)(row, col), 0.))
 			{

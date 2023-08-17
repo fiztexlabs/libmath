@@ -5,6 +5,7 @@ project(libmath
     LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 #----------------------------------------------------------------------------------------------------------------------
 # general settings and options
 #----------------------------------------------------------------------------------------------------------------------
@@ -24,7 +25,7 @@ string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_
 set(CMAKE_BUILD_TYPE Debug)
 option(MATH_USE_DOUBLE_PRECISION "Use double precision for calculations" ON)
 option(MATH_BUILD_TESTS "Build libmath tests" ON)
-option(MATH_BUILD_EXAMPLES "Build libmath examples" OFF)
+option(MATH_BUILD_EXAMPLES "Build libmath examples" ON)
 option(MATH_BUILD_DOCS "Build libmath documentation" OFF)
 option(MATH_INSTALL "Generate target for installing libmath" ON)
 set_if_undefined(MATH_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/libmath" CACHE STRING
@@ -78,6 +79,7 @@ set(sources
     libmath/solver/las/lassolver.h
     libmath/solver/las/bicgstab.h
     libmath/solver/las/kholetsky.h
+    libmath/solver/us/unlinearsolver.h
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 

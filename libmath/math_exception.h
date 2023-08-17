@@ -96,4 +96,18 @@ namespace math
 			type_ = "IncorrectLASMatrix";
 		}
 	};
+
+	/**
+	* @brief Exception too many iterations
+	*/
+	class ExceptionTooManyIterations :
+		public Exception
+	{
+	public:
+		ExceptionTooManyIterations(const std::string& m)
+			: Exception(m)
+		{
+			type_ = "TooManyIterations";
+		}
+	};
 }

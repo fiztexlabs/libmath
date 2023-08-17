@@ -2,6 +2,7 @@
 
 #include <libmath/matrix.h>
 #include <libmath/math_settings.h>
+#include <libmath/boolean.h>
 #include <omp.h>
 #include <string>
 
@@ -12,7 +13,7 @@ namespace math
 	* - iterations: Stopping solver by target iterations
 	* - tolerance: Stopping solver by target tolerance
 	*/
-	enum class StoppingCriteriaType
+	enum class LASStoppingCriteriaType
 	{
 		iterations,
 		tolerance
@@ -24,12 +25,17 @@ namespace math
 	struct LASsetup
 	{
 		/// @brief Stopping criteria
-		StoppingCriteriaType criteria = StoppingCriteriaType::tolerance;
+		LASStoppingCriteriaType criteria = LASStoppingCriteriaType::tolerance;
 
-		/// @brief Maximum number of internal iterations
+		/// @brief Maximum number of internal iterations for iterations stopping criteria
 		size_t max_iter = 100;
 
-		/// @brief Target tolerance for numerical method
+		/// @brief Maximum iterations, befor method will halted. Need to avoid infinity iterations for
+		/// tolerance criteria, if oscillations occurs.
+		/// @details abort_iter will be ignored if iterations stopping criteria choosen
+		size_t abort_iter = 10 * max_iter;
+
+		/// @brief Target tolerance for numerical method for tolerance stopping criteria
 		real targetTolerance = math::settings::DefaultSettings.targetTolerance;
 	};
 
@@ -38,8 +44,8 @@ namespace math
 	* of view @f$ \mathbf{A}\mathbf{x} = \mathbf{b} @f$.
 	* @details Usage on the BicGStab example:
 	* @code
-	* 
 	* #include <libmath/solver/las/bicgstab.h>
+	* #include <libmath/matrix.h>
 	* #include <omp.h>
 	* 
 	* int main()
@@ -72,7 +78,7 @@ namespace math
 	* }
 	* @endcode
 	*/
-	template <typename T>
+	template <typename T, typename = typename std::enable_if<isNumeric<T>>::type>
 	class LASsolver
 	{
 	protected:
@@ -102,7 +108,7 @@ namespace math
 		* @brief Get solver settings
 		* @param setup[out]: Solver settings
 		*/
-		void getSolverSetup(LASsetup& setup)
+		void getSolverSetup(LASsetup& setup) const
 		{
 			setup = currentSetup_;
 		};
@@ -111,7 +117,7 @@ namespace math
 		* @brief Get method name
 		* @param mathod[out]: Solving method
 		*/
-		void getMethod(std::string& method)
+		void getMethod(std::string& method) const
 		{
 			method = method_;
 		}

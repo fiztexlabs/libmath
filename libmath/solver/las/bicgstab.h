@@ -3,6 +3,7 @@
 #include <libmath/solver/las/lassolver.h>
 #include <libmath/math_settings.h>
 #include <libmath/math_exception.h>
+#include <libmath/boolean.h>
 #include <vector>
 #include <string>
 #include <chrono>
@@ -22,7 +23,7 @@ namespace math
 		*/
 		void checkInputs(const LASsetup& setup)
 		{
-			if (setup.criteria == StoppingCriteriaType::tolerance)
+			if (setup.criteria == LASStoppingCriteriaType::tolerance)
 			{
 				if (setup.targetTolerance < 0.0)
 				{
@@ -57,7 +58,6 @@ namespace math
 
 		/**
 		* @brief LASsolver::solve
-		* @todo Add stopping criterias
 		*/
 		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) override
 		{
@@ -113,36 +113,16 @@ namespace math
 
 			std::vector<T> tmp_E(b.rows(), static_cast<T>(1.0));
 			T E = static_cast<T>(1.0);
-			T E_l = static_cast<T>(1.0);
 			T e = static_cast<T>(math::settings::CurrentSettings.targetTolerance);
 
 			size_t iter_cnt = 0;
-			size_t disconv_cnt = 0;
+
+			// stopping criteria
+			bool stop = 0;
 
 			auto start = std::chrono::steady_clock::now();
-			while (E > e)
+			while (!stop)
 			{
-				int iters = 0;
-
-				if (iters == 0)
-				{
-					if (iter_cnt > 100)
-					{
-						break;
-						//std::cerr << "bicGStab: too many iterations!\n";
-						//Exception exc(Exception::Type::TooManyIterations);
-						//throw(exc);
-					}
-				}
-				else
-				{
-					if (iter_cnt > iters)
-					{
-						E = 0;
-						break;
-					}
-				}
-
 				rho_l = rho;
 				rho = (r1.getTr() * r)(0, 0);
 				betta = (rho / rho_l) * (alpha / omega);
@@ -150,40 +130,36 @@ namespace math
 				v = A * p;
 				alpha = rho / (r1.getTr() * v)(0, 0);
 				h = x + alpha * p;
-				E = (b - A * h).maxElement();
-				if (E <= e)
-				{
-					x = h;
-					break;
-				}
 				s = r - alpha * v;
 				t = A * s;
 				omega = (t.getTr() * s)(0, 0) / (t.getTr() * t)(0, 0);
 				x = h + omega * s;
-				E = (b - A * x).maxElement();
-				if (E <= e)
-				{
-					break;
-				}
 				r = s - omega * t;
 
-				if (E > E_l)
+				++iter_cnt;
+
+				if (currentSetup_.criteria == LASStoppingCriteriaType::tolerance)
 				{
-					E_l = E;
-					++disconv_cnt;
-					if (disconv_cnt > 10)
+					E = (b - A * x).pnorm(2);
+					if (E <= static_cast<T>(currentSetup_.targetTolerance))
 					{
-						std::cerr << "bicGStab: iterations didn't converges!\n";
-						//Exception exc(Exception::Type::DisconvergedIterations);
-						//throw(exc);
+						stop = 1;
+					}
+					else
+					{
+						if (iter_cnt > currentSetup_.abort_iter)
+						{
+							throw(math::ExceptionTooManyIterations("BicGStab.solve: Solver didn't converge with choosen tolerance. Too many iterations!"));
+						}
 					}
 				}
-				else
+				if (currentSetup_.criteria == LASStoppingCriteriaType::iterations)
 				{
-					disconv_cnt = 0;
+					if (iter_cnt > currentSetup_.max_iter)
+					{
+						stop = 1;
+					}
 				}
-
-				++iter_cnt;
 			}
 			auto end = std::chrono::steady_clock::now();
 			std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;

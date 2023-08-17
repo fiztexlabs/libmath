@@ -58,11 +58,17 @@ namespace math
 	template<typename T>
 	constexpr bool isNumeric =
 		std::is_same<T, int>::value ||
+		std::is_same<T, int const>::value ||
 		std::is_same<T, long int>::value ||
+		std::is_same<T, long int const>::value ||
 		std::is_same<T, unsigned int>::value ||
+		std::is_same<T, unsigned int const>::value ||
 		std::is_same<T, float>::value ||
+		std::is_same<T, float const>::value ||
 		std::is_same<T, double>::value ||
-		std::is_same<T, long double>::value;
+		std::is_same<T, double const>::value ||
+		std::is_same<T, long double>::value ||
+		std::is_same<T, long double const>::value;
 
 	/**
 	* @}

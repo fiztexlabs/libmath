@@ -86,14 +86,14 @@ namespace math
 	/**
 	* @brief Exception incorrect matrix
 	*/
-	class ExceptionIncorrectLASMatrix :
+	class ExceptionIncorrectMatrix :
 		public Exception
 	{
 	public:
-		ExceptionIncorrectLASMatrix(const std::string& m)
+		ExceptionIncorrectMatrix(const std::string& m)
 			: Exception(m)
 		{
-			type_ = "IncorrectLASMatrix";
+			type_ = "IncorrectMatrix";
 		}
 	};
 

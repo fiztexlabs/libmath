@@ -76,10 +76,12 @@ set(sources
     libmath/math_settings.cpp
     libmath/matrix.h
     libmath/boolean.h
+    libmath/differential.h
     libmath/solver/las/lassolver.h
     libmath/solver/las/bicgstab.h
     libmath/solver/las/kholetsky.h
     libmath/solver/us/unlinearsolver.h
+    libmath/solver/us/secant.h
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
@@ -183,8 +185,12 @@ if(MATH_BUILD_TESTS)
     endif()
     add_subdirectory(tests)
     
-    # module tests
 
+    # module tests
+    
+    #---------------------------------------------
+    # matrix test
+    #---------------------------------------------
     add_executable ( libmath-matrix-test )    
     if(GTest_FOUND)
         target_link_libraries( libmath-matrix-test
@@ -206,8 +212,10 @@ if(MATH_BUILD_TESTS)
     )
     target_sources ( libmath-matrix-test PRIVATE ${MatrixTestSources} )
 
-
-
+        
+    #---------------------------------------------
+    # LAS solver test
+    #---------------------------------------------
     add_executable ( libmath-lassolver-test )    
     if(GTest_FOUND)
         target_link_libraries( libmath-lassolver-test
@@ -229,7 +237,55 @@ if(MATH_BUILD_TESTS)
     )
     target_sources ( libmath-lassolver-test PRIVATE ${LASTestSources} )
 
+        
+    #---------------------------------------------
+    # differential operations test
+    #---------------------------------------------
+    add_executable ( libmath-differential-test )    
+    if(GTest_FOUND)
+        target_link_libraries( libmath-differential-test
+           PRIVATE
+               libmath::libmath
+               GTest::GTest
+               GTest::Main
+        )
+    else()
+        target_link_libraries( libmath-differential-test
+           PRIVATE
+               libmath::libmath
+               gtest
+               gtest_main
+        )
+    endif()
+    set(DiffTestSources
+        libmath/differential.test.cpp
+    )
+    target_sources ( libmath-differential-test PRIVATE ${DiffTestSources} )
 
+        
+    #---------------------------------------------
+    # unlinear solvers test
+    #---------------------------------------------
+    add_executable ( libmath-us-test )    
+    if(GTest_FOUND)
+        target_link_libraries( libmath-us-test
+           PRIVATE
+               libmath::libmath
+               GTest::GTest
+               GTest::Main
+        )
+    else()
+        target_link_libraries( libmath-us-test
+           PRIVATE
+               libmath::libmath
+               gtest
+               gtest_main
+        )
+    endif()
+    set(USTestSources
+        libmath/solver/us/unlinearsolver.test.cpp
+    )
+    target_sources ( libmath-us-test PRIVATE ${USTestSources} )
 endif()
 
 if(MATH_BUILD_EXAMPLES)

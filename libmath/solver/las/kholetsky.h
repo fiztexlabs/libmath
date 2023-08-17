@@ -21,6 +21,9 @@ namespace math
 		/// @brief LASsolver::solve
 		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) override
 		{
+			// check inputs
+			checkInputs(A, b, x);
+
 			// working arrays
 			Matrix<T> LUE = A.decompLU();
 			Matrix<T> Y(A.rows(), 1);

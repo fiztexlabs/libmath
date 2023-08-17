@@ -43,26 +43,7 @@ namespace math
 		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) override
 		{
 			// check inputs
-			if (A.cols() != A.rows())
-			{
-				throw(math::ExceptionNonSquareMatrix("BicGStab: Inconsistent linear system. Matrix A argument must be square!"));
-			}
-			if (b.cols() > 1)
-			{
-				throw(ExceptionIncorrectLASMatrix("BicGStab: Matrix b argument must be column matrix!"));
-			}
-			if (b.rows() != A.rows())
-			{
-				throw(ExceptionIncorrectLASMatrix("BicGStab: dimensions of arguments A and b didn't agree!"));
-			}
-			if (x.cols() > 1)
-			{
-				throw(ExceptionIncorrectLASMatrix("BicGStab: Matrix x argument must be column matrix!"));
-			}
-			if (x.rows() != A.rows())
-			{
-				throw(ExceptionIncorrectLASMatrix("BicGStab: dimensions of input argument A and output x didn't agree!"));
-			}
+			checkInputs(A, b, x);
 
 			Matrix<T> x_l = x;
 
@@ -101,7 +82,7 @@ namespace math
 			// stopping criteria
 			bool stop = 0;
 
-			auto start = std::chrono::steady_clock::now();
+			//auto start = std::chrono::steady_clock::now();
 			while (!stop)
 			{
 				rho_l = rho;
@@ -142,8 +123,8 @@ namespace math
 					}
 				}
 			}
-			auto end = std::chrono::steady_clock::now();
-			std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+			//auto end = std::chrono::steady_clock::now();
+			//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		}
 	};
 }

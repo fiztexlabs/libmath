@@ -96,6 +96,14 @@ namespace math
 		Matrix(std::initializer_list<std::initializer_list<T1>> listMatrix);
 
 		/**
+		* @brief Matrix representation
+		*/
+		MatRep representation()
+		{
+			return repr_;
+		}
+
+		/**
 		 * @brief number of rows
 		 */
 		size_t rows() const
@@ -402,7 +410,7 @@ namespace math
 		 * @param M matrix to compare
 		 * @return true if matrices are equal
 		 */
-		bool compare(const Matrix<T>& M, T eps = math::settings::CurrentSettings.TargetTolerance);
+		bool compare(const Matrix<T>& M, T eps = math::settings::CurrentSettings.targetTolerance);
 
 	private:
 		/**

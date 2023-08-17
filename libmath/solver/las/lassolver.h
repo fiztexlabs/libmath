@@ -105,6 +105,33 @@ namespace math
 				}
 			}
 		};
+
+		/**
+		* @brief Check input linear system
+		*/
+		void checkInputs(const Matrix<T>& A, const Matrix<T>& b, const Matrix<T>& x)
+		{
+			if (A.cols() != A.rows())
+			{
+				throw(math::ExceptionNonSquareMatrix(method_ + ": Inconsistent linear system. Matrix A argument must be square!"));
+			}
+			if (b.cols() > 1)
+			{
+				throw(ExceptionIncorrectMatrix(method_ + ": Matrix b argument must be column matrix!"));
+			}
+			if (b.rows() != A.rows())
+			{
+				throw(ExceptionIncorrectMatrix(method_ + ": dimensions of arguments A and b didn't agree!"));
+			}
+			if (x.cols() > 1)
+			{
+				throw(ExceptionIncorrectMatrix(method_ + ": Matrix x argument must be column matrix!"));
+			}
+			if (x.rows() != A.rows())
+			{
+				throw(ExceptionIncorrectMatrix(method_ + ": dimensions of input argument A and output x didn't agree!"));
+			}
+		}
 	public:
 
 		/**

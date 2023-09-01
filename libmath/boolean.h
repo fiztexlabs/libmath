@@ -30,10 +30,11 @@ namespace math
 	* @endcode
 	* @param A: First number
 	* @param B: Second number
+	* @param eps: Tolerance (libmath targetTolerance by default)
 	* @return flag: True if A is equal to B
 	*/
 	template<typename T, typename T1>
-	bool isEqual(T A, T1 B)
+	bool isEqual(T A, T1 B, long double eps = math::settings::CurrentSettings.targetTolerance)
 	{
 		typedef typename std::conditional<((std::is_floating_point<T>::value&&
 			std::is_floating_point<T1>::value) ? sizeof(T) <= sizeof(T1) :
@@ -44,7 +45,7 @@ namespace math
 
 		//RudeType largest = (abs(B) > abs(A)) ? abs(B) : abs(A);
 
-		if (diff <= static_cast<RudeType>(math::settings::CurrentSettings.targetTolerance))
+		if (diff <= static_cast<RudeType>(eps))
 		{
 			return true;
 		}

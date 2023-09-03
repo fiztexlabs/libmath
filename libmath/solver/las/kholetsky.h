@@ -18,11 +18,24 @@ namespace math
 			method_ = "Kholetsky";
 		};
 
+		/**
+		* @brief Kholetsky solver constructor.
+		* @param setup: Solver settings
+		*/
+		Kholetsky(const struct LASsetup& setup)
+		{
+			method_ = "Kholetsky";
+
+			checkInputs(setup);
+
+			currentSetup_ = setup;
+		}
+
 		virtual ~Kholetsky() {};
 
 		virtual LASsolver<T>* copy() override
 		{
-			return new Kholetsky<T>();
+			return new Kholetsky<T>(*this);
 		}
 
 		/// @brief LASsolver::solve

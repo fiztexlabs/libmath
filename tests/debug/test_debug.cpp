@@ -7,8 +7,23 @@
 
 TEST(US, constructor)
 {
-    math::UnlinearSolver<double>* solver = new math::Secant<double>();
-    delete solver;
+    math::UnlinearSolver<double>* solver1 = new math::Secant<double>();
+	math::USsetup setup1 =
+	{
+		math::USStoppingCriteriaType::tolerance,
+		100,
+		1000,
+		1.e-7,
+		1.e-10,
+		2,
+		new math::Kholetsky<double>()
+	};
+	solver1->setupSolver(setup1);
+
+	math::UnlinearSolver<double>* solver2 = solver1->copy();
+    delete solver1;
+	math::USsetup setup2;
+	solver2->getSolverSetup(setup2);
 }
 
 

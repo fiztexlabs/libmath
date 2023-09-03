@@ -22,16 +22,27 @@ namespace math
 			method_ = "Secant";
 		};
 
-		Secant(const USsetup& setup)
+		Secant(const struct USsetup& setup)
 		{
 			method_ = "Secant";
+
+            checkInputs(setup);
+
+            currentSetup_ = setup;
 		};
+
+        /// @brief Copy constructor
+        Secant(const Secant& uss)
+        {
+            method_ = uss.method_;
+            currentSetup_ = uss.currentSetup_;
+        }
 
         virtual ~Secant() {};
 
         virtual UnlinearSolver<T>* copy() override
         {
-            return new Secant<T>();
+            return new Secant<T>(*this);
         }
 
 		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) override

@@ -28,7 +28,7 @@ namespace math
 		* @brief BicGStab solver constructor.
 		* @param setup: Solver settings
 		*/
-		BicGStab(const LASsetup& setup)
+		BicGStab(const struct LASsetup& setup)
 		{
 			method_ = "BicGStab";
 
@@ -37,11 +37,18 @@ namespace math
 			currentSetup_ = setup;
 		}
 
+		/// @brief Copy constructor
+		BicGStab(const BicGStab& uss)
+		{
+			method_ = uss.method_;
+			currentSetup_ = uss.currentSetup_;
+		}
+
 		virtual ~BicGStab() {};
 
 		virtual LASsolver<T>* copy() override
 		{
-			return new BicGStab<T>();
+			return new BicGStab<T>(*this);
 		}
 
 

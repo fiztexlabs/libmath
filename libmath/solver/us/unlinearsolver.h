@@ -153,6 +153,8 @@ namespace math
 	* 
 	* }
     * @endcode
+	* Notice, that for child solver methods copy constructor must be defined, because setup structure
+	* USsetup contain pointer to LASsolver interface
 	*/
 	template <typename T, typename = typename std::enable_if<isNumeric<T>>::type>
 	class UnlinearSolver

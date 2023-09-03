@@ -169,11 +169,7 @@ namespace math
 			}
 		};
 	public:
-		virtual ~UnlinearSolver() 
-		{
-			std::cout << "delete us" << std::endl;
-			//currentSetup_.~USsetup();
-		};
+		virtual ~UnlinearSolver() {};
 
 		/**
 		* @brief Find roots of system @f$ F(x) = 0 @f$

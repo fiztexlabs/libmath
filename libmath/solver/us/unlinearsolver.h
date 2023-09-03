@@ -31,7 +31,7 @@ namespace math
 	{
 		~USsetup()
 		{
-			linearSolver->~LASsolver();
+			delete linearSolver;
 		}
 
 		/// @brief Stopping criteria

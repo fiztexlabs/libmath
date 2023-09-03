@@ -2,6 +2,15 @@
 #include <chrono>
 #include <gtest/gtest.h>
 #include <libmath/matrix.h>
+#include <libmath/solver/us/unlinearsolver.h>
+#include <libmath/solver/us/secant.h>
+
+TEST(US, constructor)
+{
+    math::UnlinearSolver<double>* solver = new math::Secant<double>();
+    delete solver;
+}
+
 
 TEST(Matrix, MulMbyM)
 {

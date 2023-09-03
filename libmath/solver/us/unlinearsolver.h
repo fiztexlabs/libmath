@@ -31,7 +31,8 @@ namespace math
 	{
 		~USsetup()
 		{
-			delete linearSolver;
+			/// @todo Does it right?
+			linearSolver->~LASsolver();
 		}
 
 		/// @brief Stopping criteria
@@ -153,7 +154,7 @@ namespace math
 		/**
 		* @brief Service function for checking input settings
 		*/
-		void checkInputs(const USsetup& setup)
+		void checkInputs(const struct USsetup& setup)
 		{
 			if (setup.criteria == USStoppingCriteriaType::tolerance)
 			{
@@ -168,7 +169,11 @@ namespace math
 			}
 		};
 	public:
-		virtual ~UnlinearSolver() {};
+		virtual ~UnlinearSolver() 
+		{
+			std::cout << "delete us" << std::endl;
+			//currentSetup_.~USsetup();
+		};
 
 		/**
 		* @brief Find roots of system @f$ F(x) = 0 @f$
@@ -185,7 +190,7 @@ namespace math
 		* @brief Set solver settings
 		* @param setup: Solver settings
 		*/
-		void setupSolver(const USsetup& setup)
+		void setupSolver(const struct USsetup& setup)
 		{
 			checkInputs(setup);
 
@@ -196,7 +201,7 @@ namespace math
 		* @brief Get solver settings
 		* @param setup[out]: Solver settings
 		*/
-		void getSolverSetup(USsetup& setup) const
+		void getSolverSetup(struct USsetup& setup) const
 		{
 			setup = currentSetup_;
 		};

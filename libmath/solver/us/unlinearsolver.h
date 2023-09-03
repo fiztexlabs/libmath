@@ -31,8 +31,7 @@ namespace math
 	{
 		~USsetup()
 		{
-			/// @todo Does it right?
-			linearSolver->~LASsolver();
+			delete linearSolver;
 		}
 
 		/// @brief Stopping criteria
@@ -60,6 +59,20 @@ namespace math
 		/// @see LASsolver
 		//std::unique_ptr<LASsolver<real>> linearSolver = std::make_unique<BicGStab<real>>();
 		LASsolver<real>* linearSolver = new BicGStab<real>();
+
+		/// @brief assignment operator, which correctly copy LAS solver object
+		struct USsetup& operator=(const struct USsetup& new_setup)
+		{
+			criteria = new_setup.criteria;
+			max_iter = new_setup.max_iter;
+			abort_iter = new_setup.abort_iter;
+			targetTolerance = new_setup.targetTolerance;
+			diff_step = new_setup.diff_step;
+			diff_scheme = new_setup.diff_scheme;
+			linearSolver = new_setup.linearSolver->copy();
+
+			return *this;
+		}
 
 	};
 
@@ -170,6 +183,12 @@ namespace math
 		};
 	public:
 		virtual ~UnlinearSolver() {};
+
+		/**
+		* @brief Method copy current US solver
+		* @return new LASsolver
+		*/
+		virtual UnlinearSolver<T>* copy() = 0;
 
 		/**
 		* @brief Find roots of system @f$ F(x) = 0 @f$

@@ -29,6 +29,11 @@ namespace math
 
         virtual ~Secant() {};
 
+        virtual UnlinearSolver<T>* copy() override
+        {
+            return new Secant<T>();
+        }
+
 		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) override
 		{
             // check inputs

@@ -145,6 +145,12 @@ namespace math
 		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) = 0;
 
 		/**
+		* @brief Method copy current LAS solver
+		* @return new LASsolver
+		*/
+		virtual LASsolver<T>* copy() = 0;
+
+		/**
 		* @brief Set solver settings
 		* @param setup: Solver settings
 		*/

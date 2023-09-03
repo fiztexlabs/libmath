@@ -20,6 +20,11 @@ namespace math
 
 		virtual ~Kholetsky() {};
 
+		virtual LASsolver<T>* copy() override
+		{
+			return new Kholetsky<T>();
+		}
+
 		/// @brief LASsolver::solve
 		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) override
 		{

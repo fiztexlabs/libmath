@@ -39,6 +39,12 @@ namespace math
 
 		virtual ~BicGStab() {};
 
+		virtual LASsolver<T>* copy() override
+		{
+			return new BicGStab<T>();
+		}
+
+
 		/**
 		* @brief LASsolver::solve
 		*/

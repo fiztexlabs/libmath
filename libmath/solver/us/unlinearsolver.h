@@ -29,6 +29,41 @@ namespace math
 	*/
 	struct USsetup
 	{
+		/// @brief Default constructor
+		USsetup()
+		{}
+
+		/// @brief Initializer constructor
+		USsetup(
+			USStoppingCriteriaType criteria_,
+			size_t max_iter_,
+			size_t abort_iter_,
+			real targetTolerance_,
+			real diff_step_,
+			int diff_scheme_,
+			LASsolver<real>* linearSolver_
+		) :
+			criteria(criteria_),
+			max_iter(max_iter_),
+			abort_iter(abort_iter_),
+			targetTolerance(targetTolerance_),
+			diff_step(diff_step_),
+			diff_scheme(diff_scheme_),
+			linearSolver(linearSolver_->copy())
+		{}
+
+		/// @brief Copy constructor
+		USsetup(const struct USsetup& new_setup) :
+			criteria(new_setup.criteria),
+			max_iter(new_setup.max_iter),
+			abort_iter(new_setup.abort_iter),
+			targetTolerance(new_setup.targetTolerance),
+			diff_step(new_setup.diff_step),
+			diff_scheme(new_setup.diff_scheme),
+			linearSolver(new_setup.linearSolver->copy())
+
+		{}
+
 		~USsetup()
 		{
 			delete linearSolver;
@@ -184,6 +219,25 @@ namespace math
 			}
 		};
 	public:
+		/// @brief Default constructor
+		UnlinearSolver() {}
+
+		/// @brief Copy constructor
+		UnlinearSolver(const UnlinearSolver<T>& solver)
+		{
+			currentSetup_ = solver.currentSetup_;
+			method_ = solver.method_;
+		}
+
+		/// @brief Assigns operator
+		UnlinearSolver<T>& operator=(const UnlinearSolver<T>& solver)
+		{
+			currentSetup_ = solver.currentSetup_;
+			method_ = solver.method_;
+
+			return *this;
+		}
+
 		virtual ~UnlinearSolver() {};
 
 		/**

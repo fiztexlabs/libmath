@@ -8,7 +8,7 @@
 TEST(US, constructor)
 {
     math::UnlinearSolver<double>* solver1 = new math::Secant<double>();
-	math::USsetup setup1 =
+	math::USsetup setup1
 	{
 		math::USStoppingCriteriaType::tolerance,
 		100,

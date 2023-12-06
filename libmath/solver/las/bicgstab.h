@@ -21,7 +21,7 @@ namespace math
 		/// @brief Default constructor
 		BicGStab() 
 		{
-			method_ = "BicGStab";
+			LASsolver<T>::method_ = "BicGStab";
 		};
 
 		/**
@@ -30,18 +30,18 @@ namespace math
 		*/
 		BicGStab(const struct LASsetup& setup)
 		{
-			method_ = "BicGStab";
+			LASsolver<T>::method_ = "BicGStab";
 
-			checkInputs(setup);
+			LASsolver<T>::checkInputs(setup);
 
-			currentSetup_ = setup;
+			LASsolver<T>::currentSetup_ = setup;
 		}
 
 		/// @brief Copy constructor
 		BicGStab(const BicGStab& uss)
 		{
-			method_ = uss.method_;
-			currentSetup_ = uss.currentSetup_;
+			LASsolver<T>::method_ = uss.method_;
+			LASsolver<T>::currentSetup_ = uss.currentSetup_;
 		}
 
 		virtual ~BicGStab() {};
@@ -58,7 +58,7 @@ namespace math
 		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) override
 		{
 			// check inputs
-			checkInputs(A, b, x);
+			LASsolver<T>::checkInputs(A, b, x);
 
 			Matrix<T> x_l = x;
 
@@ -115,24 +115,24 @@ namespace math
 
 				++iter_cnt;
 
-				if (currentSetup_.criteria == LASStoppingCriteriaType::tolerance)
+				if (LASsolver<T>::currentSetup_.criteria == LASStoppingCriteriaType::tolerance)
 				{
 					E = (b - A * x).pnorm(2);
-					if (E <= static_cast<T>(currentSetup_.targetTolerance))
+					if (E <= static_cast<T>(LASsolver<T>::currentSetup_.targetTolerance))
 					{
 						stop = 1;
 					}
 					else
 					{
-						if (iter_cnt > currentSetup_.abort_iter)
+						if (iter_cnt > LASsolver<T>::currentSetup_.abort_iter)
 						{
 							throw(math::ExceptionTooManyIterations("BicGStab.solve: Solver didn't converge with choosen tolerance. Too many iterations!"));
 						}
 					}
 				}
-				if (currentSetup_.criteria == LASStoppingCriteriaType::iterations)
+				if (LASsolver<T>::currentSetup_.criteria == LASStoppingCriteriaType::iterations)
 				{
-					if (iter_cnt > currentSetup_.max_iter)
+					if (iter_cnt > LASsolver<T>::currentSetup_.max_iter)
 					{
 						stop = 1;
 					}

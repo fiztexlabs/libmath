@@ -19,23 +19,23 @@ namespace math
 	public:
 		Secant()
 		{
-			method_ = "Secant";
+			UnlinearSolver<T>::method_ = "Secant";
 		};
 
 		Secant(const struct USsetup& setup)
 		{
-			method_ = "Secant";
+			UnlinearSolver<T>::method_ = "Secant";
 
-            checkInputs(setup);
+            UnlinearSolver<T>::checkInputs(setup);
 
-            currentSetup_ = setup;
+            UnlinearSolver<T>::currentSetup_ = setup;
 		};
 
         /// @brief Copy constructor
         Secant(const Secant& uss)
         {
-            method_ = uss.method_;
-            currentSetup_ = uss.currentSetup_;
+            UnlinearSolver<T>::method_ = uss.method_;
+            UnlinearSolver<T>::currentSetup_ = uss.currentSetup_;
         }
 
         virtual ~Secant() {};
@@ -69,6 +69,7 @@ namespace math
 
             std::vector<T> r(n, static_cast<T>(1.0));
             T E = static_cast<T>(1.0);
+            T x_l = static_cast<T>(x(0, 0));
 
             size_t iter_cnt = 0;
 
@@ -77,7 +78,7 @@ namespace math
 
             while (!stop)
             {
-                math::jacobi(F, x, df, currentSetup_.diff_scheme, currentSetup_.diff_step);
+                math::jacobi(F, x, df, UnlinearSolver<T>::currentSetup_.diff_scheme, UnlinearSolver<T>::currentSetup_.diff_step);
 
                 for (size_t i = 0; i < n; ++i)
                 {
@@ -87,7 +88,7 @@ namespace math
                 // solve system
                 if (df.numel() > 1)
                 {
-                    currentSetup_.linearSolver->solve(df, y, dx);
+                    UnlinearSolver<T>::currentSetup_.linearSolver->solve(df, y, dx);
                 }
 
                 // solve single equation
@@ -104,29 +105,30 @@ namespace math
                 ++iter_cnt;
 
                 // define stopping criteria
-                if (currentSetup_.criteria == USStoppingCriteriaType::tolerance)
+                if (UnlinearSolver<T>::currentSetup_.criteria == USStoppingCriteriaType::tolerance)
                 {
                     for (size_t i = 0; i < n; ++i)
                     {
-                        r[i] = abs((x(i, 0) - (x(i, 0) + dx(i, 0))) / x(i, 0));
+                        x_l = x(i, 0) - dx(i, 0);
+                        r[i] = std::abs((x_l - x(i, 0)) / x(i, 0));
                     }
                     E = *std::max_element(r.begin(), r.end());
 
-                    if (E <= static_cast<T>(currentSetup_.targetTolerance))
+                    if (E <= static_cast<T>(UnlinearSolver<T>::currentSetup_.targetTolerance))
                     {
                         stop = 1;
                     }
                     else
                     {
-                        if (iter_cnt > currentSetup_.abort_iter)
+                        if (iter_cnt > UnlinearSolver<T>::currentSetup_.abort_iter)
                         {
                             throw(math::ExceptionTooManyIterations("Secant.solve: Solver didn't converge with choosen tolerance. Too many iterations!"));
                         }
                     }
                 }
-                if (currentSetup_.criteria == USStoppingCriteriaType::iterations)
+                if (UnlinearSolver<T>::currentSetup_.criteria == USStoppingCriteriaType::iterations)
                 {
-                    if (iter_cnt > currentSetup_.max_iter)
+                    if (iter_cnt > UnlinearSolver<T>::currentSetup_.max_iter)
                     {
                         stop = 1;
                     }

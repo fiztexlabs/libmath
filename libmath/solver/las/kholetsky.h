@@ -15,7 +15,7 @@ namespace math
 	public:
 		Kholetsky()
 		{
-			method_ = "Kholetsky";
+			LASsolver<T>::method_ = "Kholetsky";
 		};
 
 		/**
@@ -24,11 +24,11 @@ namespace math
 		*/
 		Kholetsky(const struct LASsetup& setup)
 		{
-			method_ = "Kholetsky";
+			LASsolver<T>::method_ = "Kholetsky";
 
-			checkInputs(setup);
+			LASsolver<T>::checkInputs(setup);
 
-			currentSetup_ = setup;
+			LASsolver<T>::currentSetup_ = setup;
 		}
 
 		virtual ~Kholetsky() {};
@@ -42,12 +42,12 @@ namespace math
 		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) override
 		{
 			// check inputs
-			checkInputs(A, b, x);
+			LASsolver<T>::checkInputs(A, b, x);
 
 			// working arrays
 			Matrix<T> LUE = A.decompLU();
 			Matrix<T> Y(A.rows(), 1);
-			// first run (eq 2.11 Вержбицкий, p 68)
+			// first run (eq 2.11 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, p 68)
 			for (int i = 0; i < A.rows(); ++i)
 			{
 				Y(i, 0) = b(i, 0);
@@ -56,7 +56,7 @@ namespace math
 					Y(i, 0) -= LUE(i, k) * Y(k, 0);
 				}
 			}
-			// second run (eq 2.13 Вержбицкий, p 68)
+			// second run (eq 2.13 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, p 68)
 			// size_t i{0};
 			for (int j = static_cast<int>(A.rows() - 1); j >= 0; --j)
 			{

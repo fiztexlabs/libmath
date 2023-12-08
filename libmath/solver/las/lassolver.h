@@ -133,7 +133,9 @@ namespace math
 			}
 		}
 	public:
-		virtual ~LASsolver() {};
+		virtual ~LASsolver() {
+			//std::cout << "Delete lassolver" << std::endl;
+		};
 
 		/**
 		* @brief Solve LAS

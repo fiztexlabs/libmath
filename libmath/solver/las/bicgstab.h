@@ -44,7 +44,9 @@ namespace math
 			LASsolver<T>::currentSetup_ = uss.currentSetup_;
 		}
 
-		virtual ~BicGStab() {};
+		virtual ~BicGStab() {
+			//std::cout << "Delete bicgstab" << std::endl;
+		};
 
 		virtual LASsolver<T>* copy() override
 		{

@@ -48,9 +48,11 @@ namespace math
 			abort_iter(abort_iter_),
 			targetTolerance(targetTolerance_),
 			diff_step(diff_step_),
-			diff_scheme(diff_scheme_),
-			linearSolver(linearSolver_->copy())
-		{}
+			diff_scheme(diff_scheme_)
+		{
+			delete linearSolver;
+			linearSolver = linearSolver_->copy();
+		}
 
 		/// @brief Copy constructor
 		USsetup(const struct USsetup& new_setup) :
@@ -59,14 +61,18 @@ namespace math
 			abort_iter(new_setup.abort_iter),
 			targetTolerance(new_setup.targetTolerance),
 			diff_step(new_setup.diff_step),
-			diff_scheme(new_setup.diff_scheme),
-			linearSolver(new_setup.linearSolver->copy())
-
-		{}
+			diff_scheme(new_setup.diff_scheme)
+		{
+			delete linearSolver;
+			linearSolver = new_setup.linearSolver->copy();
+		}
 
 		~USsetup()
 		{
 			delete linearSolver;
+			linearSolver = nullptr;
+
+			//std::cout << "Delete ussteup" << std::endl;
 		}
 
 		/// @brief Stopping criteria
@@ -104,6 +110,7 @@ namespace math
 			targetTolerance = new_setup.targetTolerance;
 			diff_step = new_setup.diff_step;
 			diff_scheme = new_setup.diff_scheme;
+			delete linearSolver;
 			linearSolver = new_setup.linearSolver->copy();
 
 			return *this;
@@ -238,7 +245,9 @@ namespace math
 			return *this;
 		}
 
-		virtual ~UnlinearSolver() {};
+		virtual ~UnlinearSolver() {
+			//std::cout << "Delete ussolver" << std::endl;
+		};
 
 		/**
 		* @brief Method copy current US solver

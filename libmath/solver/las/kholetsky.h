@@ -31,7 +31,9 @@ namespace math
 			LASsolver<T>::currentSetup_ = setup;
 		}
 
-		virtual ~Kholetsky() {};
+		virtual ~Kholetsky() {
+			//std::cout << "Delete kholetsky" << std::endl;
+		};
 
 		virtual LASsolver<T>* copy() override
 		{

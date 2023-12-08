@@ -683,7 +683,7 @@ namespace math
 		#pragma omp parallel for shared(n, p) reduction(+:norm)
 		for (int pos = 0; pos < n; ++pos)
 		{
-			norm += std::pow(std::abs(this->mvec_.at(pos)), p);
+			norm += static_cast<T>(std::pow(std::abs(this->mvec_.at(pos)), p));
 		}
 		return std::pow(norm, (1.0 / p));
 	}

@@ -38,7 +38,9 @@ namespace math
             UnlinearSolver<T>::currentSetup_ = uss.currentSetup_;
         }
 
-        virtual ~Secant() {};
+        virtual ~Secant() {
+            //std::cout << "Delete secant" << std::endl;
+        };
 
         virtual UnlinearSolver<T>* copy() override
         {

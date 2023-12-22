@@ -74,14 +74,21 @@ set(sources
     libmath/math_exception.h
     libmath/math_settings.h
     libmath/math_settings.cpp
+
     libmath/matrix.h
+
     libmath/boolean.h
+
     libmath/differential.h
+
     libmath/solver/las/lassolver.h
     libmath/solver/las/bicgstab.h
     libmath/solver/las/kholetsky.h
     libmath/solver/us/unlinearsolver.h
     libmath/solver/us/secant.h
+
+    libmath/interpolator/interpolator.h
+    libmath/interpolator/linear.h
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
@@ -286,6 +293,31 @@ if(MATH_BUILD_TESTS)
         libmath/solver/us/unlinearsolver.test.cpp
     )
     target_sources ( libmath-us-test PRIVATE ${USTestSources} )
+
+        
+    #---------------------------------------------
+    # interpolators test
+    #---------------------------------------------
+    add_executable ( libmath-interpolator-test )    
+    if(GTest_FOUND)
+        target_link_libraries( libmath-interpolator-test
+           PRIVATE
+               libmath::libmath
+               GTest::GTest
+               GTest::Main
+        )
+    else()
+        target_link_libraries( libmath-interpolator-test
+           PRIVATE
+               libmath::libmath
+               gtest
+               gtest_main
+        )
+    endif()
+    set(InterpTestSources
+        libmath/interpolator/interpolator.test.cpp
+    )
+    target_sources ( libmath-interpolator-test PRIVATE ${InterpTestSources} )
 endif()
 
 if(MATH_BUILD_EXAMPLES)

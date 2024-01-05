@@ -1,9 +1,18 @@
 #include <gtest/gtest.h>
-#include <libmath/interpolator/linear.h>
+#include <libmath/interpolator/bilinear_interpolator.h>
+#include <libmath/interpolator/triangular_interpolator.h>
 
-TEST(Interpolator, Linear)
+
+TEST(Interpolator, Triangular)
 {
-	math::Linear<double> bilinear;
+	math::TriangularInterpolator<double> triangular;
 
-	std::cout << "hi";
+	std::cout << "hi" << std::endl;
+}
+
+TEST(Interpolator, BiLinear)
+{
+	math::BiLinearInterpolator<double> bilinear;
+
+	std::cout << "hi" << std::endl;
 }

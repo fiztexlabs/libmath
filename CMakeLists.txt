@@ -88,7 +88,8 @@ set(sources
     libmath/solver/us/secant.h
 
     libmath/interpolator/interpolator.h
-    libmath/interpolator/linear.h
+    libmath/interpolator/bilinear_interpolator.h
+    libmath/interpolator/triangular_interpolator.h
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 

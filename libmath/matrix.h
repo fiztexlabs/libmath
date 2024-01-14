@@ -3,6 +3,7 @@
 #include <libmath/math_exception.h>
 #include <libmath/math_settings.h>
 #include <libmath/boolean.h>
+#include <libmath/arithmetic.h>
 
 #include <vector>
 #include <iostream>
@@ -197,12 +198,24 @@ namespace math
 				throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): end col index out of bounds!"));
 			}
 
-			size_t cols = col_end - col_begin + 1;
-			size_t rows = row_end - row_begin + 1;
-			Matrix<T> Mout(cols, rows);
+			int cols_dir = sign(static_cast<int>(col_end) - static_cast<int>(col_begin));
+			int rows_dir = sign(static_cast<int>(row_end) - static_cast<int>(row_begin));
+			size_t cols = static_cast<size_t>(std::abs(static_cast<int>(col_end) - static_cast<int>(col_begin) + 1 * cols_dir));
+			size_t rows = static_cast<size_t>(std::abs(static_cast<int>(row_end) - static_cast<int>(row_begin) + 1 * rows_dir));
+
+			if (cols == 0)
+			{
+				throw(ExceptionIncorrectMatrix("Matrix<T>::(): Incorrect column indices, result matrix has 0 columns!"));
+			}
+			if (rows == 0)
+			{
+				throw(ExceptionIncorrectMatrix("Matrix<T>::(): Incorrect rows indices, result matrix has 0 rows!"));
+			}
+
+			Matrix<T> Mout(rows, cols);
 			size_t n = Mout.numel();
 
-#pragma omp parallel for shared(Mout, cols, rows, n) schedule(static)
+#pragma omp parallel for shared(Mout, cols, rows, cols_dir, rows_dir, n) schedule(static)
 			for (int pos = 0; pos < n; ++pos)
 			{
 				size_t row { 0 };
@@ -222,8 +235,8 @@ namespace math
 					row = pos - rows * col;
 				}
 
-				src_matrix_row = row_begin + row;
-				src_matrix_col = col_begin + col;
+				src_matrix_row = row_begin + row * rows_dir;
+				src_matrix_col = col_begin + col * cols_dir;
 
 				size_t src_pos{0};
 				if (this->repr_ == math::MatRep::Row) // row repr

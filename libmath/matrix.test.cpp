@@ -535,5 +535,27 @@ TEST(Matrix, RangeIndexOperator)
 		{13,14,15,16}
 	};
 
+	// direct
 	math::Matrix<int> m2 = m1(0,1,0,3);
+
+	math::Matrix<int> m_direct_truth =
+	{
+		{1, 2, 3, 4 },
+		{5, 6, 7, 8 }
+	};
+
+	EXPECT_EQ(m2.compare(m_direct_truth, 1.e-4), true);
+
+	// inverse
+	math::Matrix<int> m3 = m1(1,0,2,1);
+
+	math::Matrix<int> m_invere_truth =
+	{
+		{7, 6},
+		{3, 2}
+	};
+
+	EXPECT_EQ(m3.compare(m_invere_truth, 1.e-4), true);
+
+
 }

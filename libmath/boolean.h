@@ -15,7 +15,7 @@ namespace math
 	* @brief Comparsion of two numbers with different types
 	* @details To compare A and B calculate diff = fabs(A-B). If diff is smaller than n% of max(abs(A),abs(B)) then A and B can be considered equal.
 	* n defined as largest machine epsilon of types T and T1.
-	* 
+	* Compared values must be signed values!
 	* Example of using in C++:
 	* @code
 	* #include <includes/matlib.h>
@@ -32,6 +32,7 @@ namespace math
 	* @param B: Second number
 	* @param eps: Tolerance (libmath targetTolerance by default)
 	* @return flag: True if A is equal to B
+	* @todo Comparsion of unsigned values (e.g. size_t) - std::abs doesn't work with unsigned values
 	*/
 	template<typename T, typename T1>
 	bool isEqual(T A, T1 B, long double eps = math::settings::CurrentSettings.targetTolerance)
@@ -40,7 +41,7 @@ namespace math
 			std::is_floating_point<T1>::value) ? sizeof(T) <= sizeof(T1) :
 			std::is_floating_point<T1>::value),
 			T1, T>::type RudeType;
-
+		
 		RudeType diff = std::abs(static_cast<RudeType>(A) - static_cast<RudeType>(B));
 
 		//RudeType largest = (abs(B) > abs(A)) ? abs(B) : abs(A);
@@ -61,6 +62,8 @@ namespace math
 		std::is_same<T, int>::value ||
 		std::is_same<T, int const>::value ||
 		std::is_same<T, long int>::value ||
+		std::is_same<T, long long>::value ||
+		std::is_same<T, unsigned long long>::value ||
 		std::is_same<T, long int const>::value ||
 		std::is_same<T, unsigned int>::value ||
 		std::is_same<T, unsigned int const>::value ||

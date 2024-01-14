@@ -79,6 +79,8 @@ set(sources
 
     libmath/boolean.h
 
+    libmath/arithmetic.h
+
     libmath/differential.h
 
     libmath/solver/las/lassolver.h
@@ -269,6 +271,31 @@ if(MATH_BUILD_TESTS)
         libmath/differential.test.cpp
     )
     target_sources ( libmath-differential-test PRIVATE ${DiffTestSources} )
+
+        
+    #---------------------------------------------
+    # arithmetic operations test
+    #---------------------------------------------
+    add_executable ( libmath-arithmetic-test )    
+    if(GTest_FOUND)
+        target_link_libraries( libmath-arithmetic-test
+           PRIVATE
+               libmath::libmath
+               GTest::GTest
+               GTest::Main
+        )
+    else()
+        target_link_libraries( libmath-arithmetic-test
+           PRIVATE
+               libmath::libmath
+               gtest
+               gtest_main
+        )
+    endif()
+    set(ArithmeticTestSources
+        libmath/arithmetic.test.cpp
+    )
+    target_sources ( libmath-arithmetic-test PRIVATE ${ArithmeticTestSources} )
 
         
     #---------------------------------------------

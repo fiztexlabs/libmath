@@ -178,6 +178,73 @@ namespace math
 		 */
 		T operator()(size_t row, size_t col) const;
 
+		Matrix<T> operator()(size_t row_begin, size_t row_end, size_t col_begin, size_t col_end)
+		{
+			if (row_begin >= this->rows_)
+			{
+				throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): begin row index out of bounds!"));
+			}
+			if (col_begin >= this->cols_)
+			{
+				throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): begin col index out of bounds!"));
+			}
+			if (row_end >= this->rows_)
+			{
+				throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): end row index out of bounds!"));
+			}
+			if (col_end >= this->cols_)
+			{
+				throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): end col index out of bounds!"));
+			}
+
+			size_t cols = col_end - col_begin + 1;
+			size_t rows = row_end - row_begin + 1;
+			Matrix<T> Mout(cols, rows);
+			size_t n = Mout.numel();
+
+#pragma omp parallel for shared(Mout, cols, rows, n) schedule(static)
+			for (int pos = 0; pos < n; ++pos)
+			{
+				size_t row { 0 };
+				size_t col { 0 };
+
+				size_t src_matrix_row { 0 };
+				size_t src_matrix_col { 0 };
+
+				if (this->repr_ == math::MatRep::Row) // row repr
+				{
+					row = (size_t)std::floor(pos / cols);
+					col = pos - row * cols;
+				}
+				else if (this->repr_ == math::MatRep::Column) // column repr
+				{
+					col = (size_t)std::floor(pos / rows);
+					row = pos - rows * col;
+				}
+
+				src_matrix_row = row_begin + row;
+				src_matrix_col = col_begin + col;
+
+				size_t src_pos{0};
+				if (this->repr_ == math::MatRep::Row) // row repr
+					src_pos = src_matrix_row * this->cols_ + src_matrix_col;
+				else if (this->repr_ == math::MatRep::Column) // column repr
+					src_pos = src_matrix_row + this->rows_ * src_matrix_col;
+					
+				Mout.mvec_.at(pos) = this->mvec_.at(src_pos);
+			}
+
+
+			return Mout;
+
+			// size_t pos{ 0 };
+			// if (this->repr_ == math::MatRep::Row) // row repr
+			// 	pos = row * cols_ + col;
+			// else if (this->repr_ == math::MatRep::Column) // column repr
+			// 	pos = row + rows_ * col;
+			// return this->mvec_.at(pos);
+		}
+
 		/**
 		 * @brief element indexation only for row-oriented matrices [deprecated]
 		 *
@@ -193,13 +260,18 @@ namespace math
 		/// @param dim Diminseon, along which matrices will be cat
 		/// @param out_repr Representation of outer matrix
 		/// @return Matrix, build from Mv matrices
-		/// @todo Check this realization
 		template <typename T1>
 		friend Matrix<T1> cat(
 			const std::vector<Matrix<T1>> &Mv,
 			Dimension dim,
 			MatRep out_repr);
 
+		/// @brief Cat a few matrices along specified dimension
+		/// @param Mv Vector of input matrices to be cat
+		/// @param dim Diminseon, along which matrices will be cat
+		/// @param out_repr Representation of outer matrix
+		/// @return Matrix, build from Mv matrices
+		/// @todo Check this realization
 		Matrix<T> &cat(
 			const std::vector<Matrix<T>> &Mv,
 			Dimension dim,

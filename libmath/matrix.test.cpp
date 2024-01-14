@@ -464,7 +464,7 @@ TEST(Matrix, IndexOperator)
 
 TEST(Matrix, CatMatrix)
 {
-	omp_set_num_threads(1);
+	omp_set_num_threads(4);
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -521,4 +521,19 @@ TEST(Matrix, CatMatrix)
 		math::Dimension::Column);
 		
 	EXPECT_EQ(m_cat_cols2.compare(m_truth_cols, 1.e-4), true);
+}
+
+TEST(Matrix, RangeIndexOperator)
+{
+	omp_set_num_threads(1);
+
+	math::Matrix<int> m1 =
+	{
+		{1, 2, 3, 4 },
+		{5, 6, 7, 8 },
+		{9, 10,11,12},
+		{13,14,15,16}
+	};
+
+	math::Matrix<int> m2 = m1(0,1,0,3);
 }

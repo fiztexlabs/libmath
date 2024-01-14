@@ -179,6 +179,35 @@ namespace math
 		 */
 		T operator()(size_t row, size_t col) const;
 
+		/**
+		 * @brief Build matrix from parent matrix with respect to specified rows and columns indices
+		 * @details If row_end less, than row_end, or col_end less, than col_begin, result matrix will be built
+		 * in inverse direction. E.g., following code:
+		 * @code {.CXX}
+		 * math::Matrix<int> m1 =
+		 * {
+		 * 	{1, 2, 3, 4 },
+		 * 	{5, 6, 7, 8 },
+		 * 	{9, 10,11,12},
+		 * 	{13,14,15,16}
+		 * };
+		 * // inverse
+		 * math::Matrix<int> m3 = m1(1,0,2,1);
+		 * m3.print();
+		 * @endcode
+		 * Produce the following output:
+		 * @code {.bash}
+		 * 7 6
+		 * 3 2
+		 * @endcode
+		 * 
+		 * 
+		 * @param row_begin 
+		 * @param row_end 
+		 * @param col_begin 
+		 * @param col_end 
+		 * @return Matrix<T> 
+		 */
 		Matrix<T> operator()(size_t row_begin, size_t row_end, size_t col_begin, size_t col_end)
 		{
 			if (row_begin >= this->rows_)

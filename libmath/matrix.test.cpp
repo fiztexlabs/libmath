@@ -274,13 +274,13 @@ TEST(Matrix, multByNumber)
 	m1 *= 3.;
 	EXPECT_EQ(m1 == m_truth, true);
 
-	math::Matrix<double> md = // столбец
+	math::Matrix<double> md = // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	{
 	  {1},
 	  {2},
 	  {3}
 	};
-	math::Matrix<double> md1(std::vector<double>{1, 2, 3}, true); // тоже столбец
+	math::Matrix<double> md1(std::vector<double>{1, 2, 3}, true); // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	std::vector<double> v1{ 5.,10.,15. };
 	math::Matrix<double> md_by_5(v1, true);
 	EXPECT_EQ(md_by_5 == md1 * 5., true);
@@ -462,3 +462,63 @@ TEST(Matrix, IndexOperator)
 
 }
 
+TEST(Matrix, CatMatrix)
+{
+	omp_set_num_threads(1);
+	math::Matrix<double> m1 =
+	{
+	  {2,-1,1},
+	  {4,3,1},
+	  {6,-13,6}
+	};
+
+	math::Matrix<double> m2 = m1;
+	math::Matrix<double> m3 = m1;
+
+	math::Matrix<double> m_truth_rows =
+	{
+	  {2,-1,1},
+	  {4,3,1},
+	  {6,-13,6},
+	  {2,-1,1},
+	  {4,3,1},
+	  {6,-13,6},
+	  {2,-1,1},
+	  {4,3,1},
+	  {6,-13,6}
+	};
+
+	math::Matrix<double> m_truth_cols =
+	{
+	  {2,-1,1,2,-1,1,2,-1,1},
+	  {4,3,1,4,3,1,4,3,1},
+	  {6,-13,6,6,-13,6,6,-13,6}
+	};
+	
+	// test vector overload of math::cat
+	math::Matrix<double> m_cat_rows1 = math::cat(
+		std::vector<math::Matrix<double>>{m1,m2,m3},
+		math::Dimension::Row);
+
+	EXPECT_EQ(m_cat_rows1.compare(m_truth_rows, 1.e-4), true);
+
+	math::Matrix<double> m_cat_cols1 = math::cat(
+		std::vector<math::Matrix<double>>{m1,m2,m3},
+		math::Dimension::Column);
+		
+	EXPECT_EQ(m_cat_cols1.compare(m_truth_cols, 1.e-4), true);
+
+	math::Matrix<double> m_cat_rows2 = m1;
+	m_cat_rows2.cat(
+		std::vector<math::Matrix<double>>{m2,m3},
+		math::Dimension::Row);
+		
+	EXPECT_EQ(m_cat_rows2.compare(m_truth_rows, 1.e-4), true);
+
+	math::Matrix<double> m_cat_cols2 = m1;
+	m_cat_cols2.cat(
+		std::vector<math::Matrix<double>>{m2,m3},
+		math::Dimension::Column);
+		
+	EXPECT_EQ(m_cat_cols2.compare(m_truth_cols, 1.e-4), true);
+}

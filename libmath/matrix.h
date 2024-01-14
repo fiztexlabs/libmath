@@ -24,6 +24,25 @@ namespace math
 		Row = 0,
 		Column
 	};
+
+	/**
+	 * @brief Enum class for matrix dimension
+	*/
+	enum class Dimension
+	{
+		Row = 0,
+		Column
+	};
+	
+	template<typename T>
+	class Matrix;
+	// cat method predeclaration (for using default out_repr, standard (§8.3.6))
+	template <typename T>
+	Matrix<T> cat(
+		const std::vector<Matrix<T>> &Mv,
+		Dimension dim,
+		MatRep out_repr = MatRep::Row);
+
 	//! Class Matrix
 	/* Class representing matrix of type T
 	 */
@@ -168,6 +187,29 @@ namespace math
 		 * @throws math::Exception(Exception::Type::IndexOutOfBounds) in case of index > (rows-1)
 		 */
 		T* operator[](size_t index);
+
+		/// @brief Cat a few matrices along specified dimension
+		/// @param Mv Vector of input matrices to be cat
+		/// @param dim Diminseon, along which matrices will be cat
+		/// @param out_repr Representation of outer matrix
+		/// @return Matrix, build from Mv matrices
+		/// @todo Check this realization
+		template <typename T1>
+		friend Matrix<T1> cat(
+			const std::vector<Matrix<T1>> &Mv,
+			Dimension dim,
+			MatRep out_repr);
+
+		Matrix<T> &cat(
+			const std::vector<Matrix<T>> &Mv,
+			Dimension dim,
+			MatRep out_repr = MatRep::Row)
+		{
+			std::vector<Matrix<T>> Mv_new = Mv;
+			Mv_new.insert(Mv_new.begin(), *this);
+			*this = math::cat(Mv_new, dim, out_repr);
+			return *this;
+		}
 
 		/**
 		* @brief Fill matrix by value val
@@ -693,6 +735,134 @@ namespace math
 		return (m1.rows_ == m2.rows_) &&
 			(m1.cols_ == m2.cols_) &&
 			(m1.mvec_ == m2.mvec_);
+	}
+
+	template <typename T>
+	Matrix<T> cat(
+		const std::vector<Matrix<T>> &Mv,
+		Dimension dim,
+		MatRep out_repr)
+	{
+		size_t cols = 0;
+		size_t rows = 0;
+		size_t n = 0;
+
+		if (dim == Dimension::Row)
+		{
+			cols = Mv.at(0).cols_;
+		}
+		if (dim == Dimension::Column)
+		{
+			rows = Mv.at(0).rows_;
+		}
+
+		// vector store accumalate values of matrix sizes
+		std::vector<size_t> num_elements_accum(Mv.size());
+
+		// vector store accumalate values of matrix rows
+		std::vector<size_t> num_rows_accum(Mv.size());
+
+		// vector store accumalate values of matrix cols
+		std::vector<size_t> num_cols_accum(Mv.size());
+
+		num_elements_accum.at(0) = Mv.at(0).numel();
+		num_rows_accum.at(0) = Mv.at(0).rows();
+		num_cols_accum.at(0) = Mv.at(0).cols();
+		for (size_t i = 1; i < Mv.size(); ++i)
+		{
+			num_elements_accum.at(i) = num_elements_accum.at(i - 1) + Mv.at(i).numel();
+			num_rows_accum.at(i) = num_rows_accum.at(i - 1) + Mv.at(i).rows();
+			num_cols_accum.at(i) = num_cols_accum.at(i - 1) + Mv.at(i).cols();
+		}
+
+		// check inputs and define output matrix dimension
+		for (const auto &M : Mv)
+		{
+			if (dim == Dimension::Row)
+			{
+				if (cols != M.cols_)
+				{
+					throw(ExceptionIncorrectMatrix("Matrix<T> cat: Trying to cat matrices with different number of rows by rows"));
+				}
+				rows += M.rows_;
+			}
+			if (dim == Dimension::Column)
+			{
+				if (rows != M.rows_)
+				{
+					throw(ExceptionIncorrectMatrix("Matrix<T> cat: Trying to cat matrices with different number of columns by columns"));
+				}
+				cols += M.cols_;
+			}
+			n += M.numel();
+		}
+
+		Matrix<T> Mout(rows, cols);
+		// fill output matrix
+
+		// auto start = std::chrono::steady_clock::now();
+#pragma omp parallel for shared(Mv, Mout, n, out_repr, dim, num_elements_accum, num_rows_accum, num_cols_accum, rows, cols) schedule(static)
+		for (int pos = 0; pos < n; ++pos)
+		{
+			size_t row = 0;
+			size_t col = 0;
+
+			// iterate on matrices vector
+			size_t src_matrix_iter = 0;
+
+			size_t src_matrix_row = 0;
+			size_t src_matrix_col = 0;
+
+			if (out_repr == math::MatRep::Row) // row repr
+			{
+				row = (size_t)std::floor(pos / cols);
+				col = pos - row * cols;
+			}
+			else if (out_repr == math::MatRep::Column) // column repr
+			{
+				col = (size_t)std::floor(pos / rows);
+				row = pos - rows * col;
+			}
+
+			if (dim == Dimension::Row)
+			{
+				src_matrix_iter =
+					std::distance(
+						num_elements_accum.begin(),
+						std::upper_bound(num_elements_accum.begin(), num_elements_accum.end(), pos));
+
+				if (src_matrix_iter > 0)
+				{
+					src_matrix_row = row - num_rows_accum.at(src_matrix_iter - 1);
+				}
+				else
+				{
+					src_matrix_row = row;
+				}
+				Mout(row, col) = Mv.at(src_matrix_iter)(src_matrix_row, col);
+			}
+			if (dim == Dimension::Column)
+			{
+				src_matrix_iter =
+					std::distance(
+						num_cols_accum.begin(),
+						std::upper_bound(num_cols_accum.begin(), num_cols_accum.end(), col));
+
+				if (src_matrix_iter > 0)
+				{
+					src_matrix_col = col - num_cols_accum.at(src_matrix_iter - 1);
+				}
+				else
+				{
+					src_matrix_col = col;
+				}
+				Mout(row, col) = Mv.at(src_matrix_iter)(row, src_matrix_col);
+			}
+		}
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+
+		return Mout;
 	}
 
 	template <typename T>

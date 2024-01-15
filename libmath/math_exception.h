@@ -110,4 +110,32 @@ namespace math
 			type_ = "TooManyIterations";
 		}
 	};
+
+	/**
+	* @brief Exception non-equal columns number
+	*/
+	class ExceptionNonEqualColumnsNum :
+		public ExceptionIncorrectMatrix
+	{
+	public:
+		ExceptionNonEqualColumnsNum(const std::string& m)
+			: ExceptionIncorrectMatrix(m)
+		{
+			type_ = "NonEqualColumnsNum";
+		}
+	};
+
+	/**
+	* @brief Exception non-equal rows number
+	*/
+	class ExceptionNonEqualRowsNum :
+		public ExceptionIncorrectMatrix
+	{
+	public:
+		ExceptionNonEqualRowsNum(const std::string& m)
+			: ExceptionIncorrectMatrix(m)
+		{
+			type_ = "NonEqualRowsNum";
+		}
+	};
 }

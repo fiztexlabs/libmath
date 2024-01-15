@@ -376,6 +376,15 @@ namespace math
 		T maxElement();
 
 		/**
+		 * @brief Min element of matrix
+		 * @return MIN: min element of matrix
+		 */
+		T minElement()
+		{
+			return *std::min_element(mvec_.begin(), mvec_.end());
+		}
+
+		/**
 		 * @brief LU decomposition
 		 *
 		 * Calculation of Lower (L) and Upper (U) matrixes comprising LU decomposition of this matrix: M = L*U
@@ -896,7 +905,7 @@ namespace math
 			{
 				if (cols != M.cols_)
 				{
-					throw(ExceptionIncorrectMatrix("Matrix<T> cat: Trying to cat matrices with different number of rows by rows"));
+					throw(ExceptionNonEqualColumnsNum("Matrix<T> cat: Trying to cat matrices with different number of rows by rows"));
 				}
 				rows += M.rows_;
 			}
@@ -904,7 +913,7 @@ namespace math
 			{
 				if (rows != M.rows_)
 				{
-					throw(ExceptionIncorrectMatrix("Matrix<T> cat: Trying to cat matrices with different number of columns by columns"));
+					throw(ExceptionNonEqualRowsNum("Matrix<T> cat: Trying to cat matrices with different number of columns by columns"));
 				}
 				cols += M.cols_;
 			}

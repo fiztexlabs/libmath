@@ -5,14 +5,37 @@
 
 TEST(Interpolator, Triangular)
 {
-	math::TriangularInterpolator<double> triangular;
+	math::Matrix<double> x =
+	{
+		{1.,1.},
+		{2.,1.},
+		{1.,2.}
+	};
+
+	math::Matrix<double> y =
+	{
+		{1.},
+		{1.},
+		{1.}
+	};
+
+	math::TriangularInterpolator<double> triangular(x, y);
+	triangular.build();
+
+	math::Matrix<double> new_y;
+	math::Matrix<double> new_x = 
+	{
+		{1.5},
+		{1.5}
+	};
+	triangular.interpolate(new_x, new_y);
 
 	std::cout << "hi" << std::endl;
 }
 
 TEST(Interpolator, BiLinear)
 {
-	math::BiLinearInterpolator<double> bilinear;
+	// math::BiLinearInterpolator<double> bilinear;
 
 	std::cout << "hi" << std::endl;
 }

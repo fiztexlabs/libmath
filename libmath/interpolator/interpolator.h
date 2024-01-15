@@ -21,7 +21,7 @@ namespace math
 	{
 	protected:
 		/// @brief Internal linear solver
-		std::unique_ptr<LASsolver<T>> solver{ std::unique_ptr<LASsolver<T>>(new Kholetsky<T>()) };
+		std::unique_ptr<LASsolver<T>> solver_{ std::unique_ptr<LASsolver<T>>(new Kholetsky<T>()) };
 
 		/// @brief Dependent variables
 		math::Matrix<T> y_;
@@ -45,7 +45,7 @@ namespace math
 
 			if (x.rows() != y.rows())
 			{
-				throw(ExceptionInvalidValue(
+				throw(ExceptionNonEqualRowsNum(
 					"%%err " + method_ +
 					": Matrices of dependent and independent variables must have the same number of rows: " +
 					std::string(x_.rows()) + " != " + std::string(y_.rows())));
@@ -54,5 +54,10 @@ namespace math
 
 	public:
 		virtual ~Interpolator() {};
+
+		/// @brief Evaluate interpolation coefficients
+		virtual void build() = 0;
+
+		virtual void interpolate(const Matrix<T>& x, Matrix<T>& y) = 0;
 	};
 }

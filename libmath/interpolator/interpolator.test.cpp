@@ -14,9 +14,9 @@ TEST(Interpolator, Triangular)
 
 	math::Matrix<double> y =
 	{
-		{1.},
-		{1.},
-		{1.}
+		{0.},
+		{0.},
+		{0.}
 	};
 
 	math::TriangularInterpolator<double> triangular(x, y);

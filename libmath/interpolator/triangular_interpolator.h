@@ -37,9 +37,10 @@ namespace math
             Interpolator<T>::x_ = x;
             Interpolator<T>::y_ = y;
 
-            A_ = cat(std::vector<math::Matrix<T>>{x, y}, Dimension::Column);
-            b_ = Matrix<T>(rows, 1);
-            b_.fill(-static_cast<T>(y.minElement()));
+            A_ = cat(std::vector<math::Matrix<T>>{x, static_cast<T>(1.0) + Matrix<T>(rows, 1)}, Dimension::Column);
+            // b_ = Matrix<T>(rows, 1);
+            // b_.fill(static_cast<T>(2.0));
+            b_ = y;
             c_ = Matrix<T>(rows, 1);
         };
 
@@ -58,13 +59,11 @@ namespace math
             }
 
             y = Matrix<T>(Interpolator<T>::y_.cols(), 1);
-            T sum{0};
             for (size_t j = 0; j < x.rows(); ++j)
             {
-                sum += x(j, 0) * c_(j, 0);
+                y(0, 0) += x(j, 0) * c_(j, 0);
             }
-            sum += b_(0, 0);
-            y(0, 0) = sum / c_(c_.rows() - 1, 0);
+            y(0, 0) += c_(c_.rows() - 1, 0);
         }
 };
 }

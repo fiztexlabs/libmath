@@ -4,6 +4,7 @@
 #include <libmath/boolean.h>
 #include <libmath/solver/las/lassolver.h>
 #include <libmath/solver/las/kholetsky.h>
+#include <libmath/solver/las/bicgstab.h>
 #include <libmath/math_exception.h>
 #include <omp.h>
 #include <string>

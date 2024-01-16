@@ -138,4 +138,32 @@ namespace math
 			type_ = "NonEqualRowsNum";
 		}
 	};
+
+	/**
+	* @brief Exception non-row vector
+	*/
+	class ExceptionNonRowVector :
+		public ExceptionIncorrectMatrix
+	{
+	public:
+		ExceptionNonRowVector(const std::string& m)
+			: ExceptionIncorrectMatrix(m)
+		{
+			type_ = "NonRowVector";
+		}
+	};
+
+	/**
+	* @brief Exception non-column vector
+	*/
+	class ExceptionNonColumnVector :
+		public ExceptionIncorrectMatrix
+	{
+	public:
+		ExceptionNonColumnVector(const std::string& m)
+			: ExceptionIncorrectMatrix(m)
+		{
+			type_ = "NonColumnVector";
+		}
+	};
 }

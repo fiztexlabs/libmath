@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <libmath/interpolator/bilinear_interpolator.h>
-#include <libmath/interpolator/triangular_interpolator.h>
+#include <libmath/interpolator/polygone_interpolator.h>
 
 
 TEST(Interpolator, Triangular)
@@ -14,21 +14,20 @@ TEST(Interpolator, Triangular)
 
 	math::Matrix<double> y =
 	{
-		{1.},
-		{1.},
-		{1.}
+		{0.},
+		{0.},
+		{0.}
 	};
 
-	math::TriangularInterpolator<double> triangular(x, y);
-	triangular.build();
+	math::PolygoneInterpolator<double> polygone(x, y);
+	polygone.build();
 
 	math::Matrix<double> new_y;
 	math::Matrix<double> new_x = 
 	{
-		{1.5},
-		{1.5}
+		{1.5, 1.5}
 	};
-	triangular.interpolate(new_x, new_y);
+	double y_int = polygone.interpolate(new_x);
 
 	std::cout << "hi" << std::endl;
 }

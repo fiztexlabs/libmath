@@ -91,7 +91,7 @@ set(sources
 
     libmath/interpolator/interpolator.h
     libmath/interpolator/bilinear_interpolator.h
-    libmath/interpolator/triangular_interpolator.h
+    libmath/interpolator/polygone_interpolator.h
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 

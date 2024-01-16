@@ -373,13 +373,16 @@ namespace math
 		 * @brief Max element of matrix
 		 * @return MAX: max element of matrix
 		 */
-		T maxElement();
+		T maxElement() const
+		{
+			return *std::max_element(mvec_.begin(), mvec_.end());
+		};
 
 		/**
 		 * @brief Min element of matrix
 		 * @return MIN: min element of matrix
 		 */
-		T minElement()
+		T minElement() const
 		{
 			return *std::min_element(mvec_.begin(), mvec_.end());
 		}
@@ -986,12 +989,6 @@ namespace math
 		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
 		return Mout;
-	}
-
-	template <typename T>
-	T Matrix<T>::maxElement()
-	{
-		return *std::max_element(mvec_.begin(), mvec_.end());
 	}
 
 	template<typename T>

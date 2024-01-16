@@ -35,29 +35,33 @@ namespace math
 		/// @brief Dimension
 		size_t dim_ = 0;
 
-		/// @brief Check input points
-        void checkInputs(math::Matrix<T> x, math::Matrix<T> y)
-		{
-			std::cerr << "%%err " + method_ +
-							 ": Matrices of dependent and independent variables must have the same number of rows: " +
-							 std::string(x_.rows()) + " != " + std::string(y_.rows())
-					  << std::endl;
+	public:
+		Interpolator(const std::string& method) : method_(method) {};
 
-			if (x.rows() != y.rows())
+		Interpolator(const std::string &method,
+					 const math::Matrix<T> &x,
+					 const math::Matrix<T> &y) : method_(method),
+												 x_(x),
+												 y_(y),
+												 dim_(x.cols())
+		{
+			if (x_.rows() != y_.rows())
 			{
 				throw(ExceptionNonEqualRowsNum(
-					"%%err " + method_ +
-					": Matrices of dependent and independent variables must have the same number of rows: " +
-					std::string(x_.rows()) + " != " + std::string(y_.rows())));
+					"Interpolator<T> (" + method_ + ") interpolation: Matrices x and y have non-equal number of rows!"));
+			}
+			if (y_.cols() != 1)
+			{
+				throw(ExceptionNonColumnVector(
+					"Interpolator<T> (" + method_ + ") interpolation: Matrix y of dependent variables must be column vector!"));
 			}
 		};
 
-	public:
 		virtual ~Interpolator() {};
 
 		/// @brief Evaluate interpolation coefficients
 		virtual void build() = 0;
 
-		virtual void interpolate(const Matrix<T>& x, Matrix<T>& y) = 0;
+		virtual T interpolate(const Matrix<T>& x) = 0;
 	};
 }

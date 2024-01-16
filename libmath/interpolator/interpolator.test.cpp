@@ -3,7 +3,7 @@
 #include <libmath/interpolator/polygone_interpolator.h>
 
 
-TEST(Interpolator, Triangular)
+TEST(Interpolator, Polygone)
 {
 	math::Matrix<double> x =
 	{
@@ -14,22 +14,21 @@ TEST(Interpolator, Triangular)
 
 	math::Matrix<double> y =
 	{
-		{0.},
-		{0.},
-		{0.}
+		{1.},
+		{2.},
+		{2.}
 	};
 
 	math::PolygoneInterpolator<double> polygone(x, y);
 	polygone.build();
 
-	math::Matrix<double> new_y;
 	math::Matrix<double> new_x = 
 	{
-		{1.5, 1.5}
+		{2., 1.}
 	};
 	double y_int = polygone.interpolate(new_x);
 
-	std::cout << "hi" << std::endl;
+	std::cout << y_int << std::endl;
 }
 
 TEST(Interpolator, BiLinear)

@@ -13,6 +13,8 @@ add_executable(libmath-differential-example)
 
 add_executable(libmath-us-example)
 
+add_executable(libmath-interpolation-example)
+
 
 #----------------------------------------------------------------------------------------------------------------------
 # dependencies
@@ -21,11 +23,13 @@ add_executable(libmath-us-example)
 target_link_libraries(libmath-las-example PRIVATE libmath::libmath)
 target_link_libraries(libmath-differential-example PRIVATE libmath::libmath)
 target_link_libraries(libmath-us-example PRIVATE libmath::libmath)
+target_link_libraries(libmath-interpolation-example PRIVATE libmath::libmath)
 
 if(NOT is_top_level)
     win_copy_deps_to_target_dir(libmath-las-example libmath::libmath)
     win_copy_deps_to_target_dir(libmath-differential-example libmath::libmath)
     win_copy_deps_to_target_dir(libmath-us-example libmath::libmath)
+    win_copy_deps_to_target_dir(libmath-interpolation-example libmath::libmath)
 endif()
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -42,6 +46,10 @@ set(DiffExampleSources
 
 set(USExampleSources
     solvers/us.example.cpp
+)
+
+set(InterpExampleSources
+    interpolation/polygone_interpolation.example.cpp
 )
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -73,6 +81,17 @@ target_include_directories( libmath-differential-example
 target_sources ( libmath-us-example PRIVATE ${USExampleSources} )
 
 target_include_directories( libmath-us-example
+  PUBLIC
+    "$<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}>"
+    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>"
+  PRIVATE
+    "$<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}>"
+    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>"
+)
+
+target_sources ( libmath-interpolation-example PRIVATE ${InterpExampleSources} )
+
+target_include_directories( libmath-interpolation-example
   PUBLIC
     "$<INSTALL_INTERFACE:${CMAKE_SOURCE_DIR}>"
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>"

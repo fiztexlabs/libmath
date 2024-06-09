@@ -13,7 +13,7 @@ namespace math
 	/**
 	* @brief Class for n-dimensional polygone
 	*/
-	template<typename T, typename = typename std::enable_if<isNumeric<T>>::type>
+	template <typename T>
 	class Polygone
 	{
 	protected:

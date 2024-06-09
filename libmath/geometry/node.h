@@ -8,10 +8,10 @@
 
 namespace math
 {
-	template<typename T, typename = typename std::enable_if<isNumeric<T>>::type>
+	template<typename T>
 	class Polygone;
 
-	template<typename T, typename = typename std::enable_if<isNumeric<T>>::type>
+	template<typename T>
 	class Edge;
 
 	/**

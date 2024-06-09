@@ -32,12 +32,6 @@ TEST(Geometry, CreateNode)
 			}
 			)
 	);
-
-	math::Edge<double> AB({ &A,&B });
-	math::Edge<double> AC({ &A,&C });
-	math::Edge<double> BC({ &B,&C });
-
-	math::Polygone<double> ABC({ &AB,&AC,&BC });
 }
 
 TEST(Geometry, CreateEdge)

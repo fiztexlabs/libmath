@@ -66,7 +66,7 @@ namespace math
             Interpolator<T>::solver_->solve(A_, b_, c_);
         }
 
-		virtual T interpolate(const Matrix<T>& x) override
+		virtual T interpolate(const Matrix<T>& x) const override
         {
             if (x.cols() != Interpolator<T>::dim_ || x.rows() != 1)
             {

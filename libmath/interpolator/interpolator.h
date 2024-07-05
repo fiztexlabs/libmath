@@ -63,6 +63,6 @@ namespace math
 		/// @brief Evaluate interpolation coefficients
 		virtual void build() = 0;
 
-		virtual T interpolate(const Matrix<T>& x) = 0;
+		virtual T interpolate(const Matrix<T>& x) const = 0;
 	};
 }

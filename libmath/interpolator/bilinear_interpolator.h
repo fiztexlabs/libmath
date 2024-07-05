@@ -45,7 +45,7 @@ namespace math
 			}
 		}
 		
-		virtual T interpolate(const Matrix<T>& x) override
+		virtual T interpolate(const Matrix<T>& x) const override
 		{
 			return 1.0;
 		}

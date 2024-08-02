@@ -91,7 +91,7 @@ namespace math
 		/**
 		* @brief Service function for checking input settings
 		*/
-		void checkInputs(const LASsetup& setup)
+		void checkInputs(const LASsetup& setup) const
 		{
 			if (setup.criteria == LASStoppingCriteriaType::tolerance)
 			{
@@ -109,7 +109,7 @@ namespace math
 		/**
 		* @brief Check input linear system
 		*/
-		void checkInputs(const Matrix<T>& A, const Matrix<T>& b, const Matrix<T>& x)
+		void checkInputs(const Matrix<T>& A, const Matrix<T>& b, const Matrix<T>& x) const
 		{
 			if (A.cols() != A.rows())
 			{
@@ -144,7 +144,7 @@ namespace math
 		* @param x[out]: Column vector of solution. Initial value of x used
 		* as initial guess for methods, that requires initial gues values
 		*/
-		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) = 0;
+		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) const = 0;
 
 		/**
 		* @brief Method copy current LAS solver

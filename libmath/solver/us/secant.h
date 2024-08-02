@@ -47,7 +47,7 @@ namespace math
             return new Secant<T>(*this);
         }
 
-		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) override
+		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) const override
 		{
             // check inputs
             if (x.cols() > 1)

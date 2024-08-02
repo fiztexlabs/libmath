@@ -264,7 +264,7 @@ namespace math
 		* @param[out] x: Column matrix of result roots. Initial value of x used as initial guess for numerical method
 		* 
 		*/
-		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) = 0;
+		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) const = 0;
 
 		/**
 		* @brief Set solver settings

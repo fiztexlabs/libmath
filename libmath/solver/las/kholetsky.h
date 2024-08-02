@@ -41,7 +41,7 @@ namespace math
 		}
 
 		/// @brief LASsolver::solve
-		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) override
+		virtual void solve(const Matrix<T>& A, const Matrix<T>& b, Matrix<T>& x) const override
 		{
 			// check inputs
 			LASsolver<T>::checkInputs(A, b, x);

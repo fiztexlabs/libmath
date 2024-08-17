@@ -8,6 +8,19 @@ namespace math
 #else
 	typedef float real;
 #endif
+
+	/**
+	* @brief Tolerance modes
+	* @details Define representation of defined tolerance for algorithms
+	*/
+	enum class ToleranceMode
+	{
+		/// @brief Absolute tolerance
+		absolute,
+
+		/// @brief Relative tolerance
+		relative
+	};
 }
 
 namespace math::settings

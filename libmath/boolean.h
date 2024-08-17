@@ -3,6 +3,7 @@
 #include <cmath>
 #include <limits>
 #include <libmath/math_settings.h>
+#include <algorithm>
 
 namespace math
 {
@@ -35,14 +36,43 @@ namespace math
 	* @todo Comparsion of unsigned values (e.g. size_t) - std::abs doesn't work with unsigned values
 	*/
 	template<typename T, typename T1>
-	bool isEqual(T A, T1 B, long double eps = math::settings::CurrentSettings.targetTolerance)
+	bool isEqual(T A, T1 B, long double eps = math::settings::CurrentSettings.targetTolerance, ToleranceMode tolerance_representation = ToleranceMode::absolute)
 	{
 		typedef typename std::conditional<((std::is_floating_point<T>::value&&
 			std::is_floating_point<T1>::value) ? sizeof(T) <= sizeof(T1) :
 			std::is_floating_point<T1>::value),
 			T1, T>::type RudeType;
 		
-		RudeType diff = std::abs(static_cast<RudeType>(A) - static_cast<RudeType>(B));
+		RudeType diff = static_cast<RudeType>(0.0);
+
+		if (tolerance_representation == ToleranceMode::absolute)
+		{
+			diff = std::abs(static_cast<RudeType>(A) - static_cast<RudeType>(B));
+		}
+		if (tolerance_representation == ToleranceMode::relative)
+		{
+			if ((static_cast<RudeType>(A) == 0.0) && (static_cast<RudeType>(B) != 0.0))
+			{
+				diff = std::abs((static_cast<RudeType>(A) - static_cast<RudeType>(B)) / static_cast<RudeType>(B));
+			}
+			if ((static_cast<RudeType>(B) == 0.0) && (static_cast<RudeType>(A) != 0.0))
+			{
+				diff = std::abs((static_cast<RudeType>(B) - static_cast<RudeType>(A)) / static_cast<RudeType>(A));
+			}
+			if ((static_cast<RudeType>(B) == 0.0) && (static_cast<RudeType>(A) == 0.0))
+			{
+				return true;
+			}
+			else
+			{
+				RudeType diff1 = std::abs((static_cast<RudeType>(A) - static_cast<RudeType>(B)) / static_cast<RudeType>(B));
+				RudeType diff2 = std::abs((static_cast<RudeType>(B) - static_cast<RudeType>(A)) / static_cast<RudeType>(A));
+
+				diff = std::max(diff1, diff2);
+			}
+;
+		}
+
 
 		//RudeType largest = (abs(B) > abs(A)) ? abs(B) : abs(A);
 

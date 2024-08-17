@@ -6,9 +6,17 @@
 
 namespace math
 {
-    /// @brief Sign of any numeric value
-    /// @param value: Value with sign 
-    /// @return -1 or 1, casted to T
+    /**
+    * @defgroup Arithmetic Arithmetic operations
+    * @{
+    * @brief Define arithmetic methods
+    */
+
+    /**
+    * @brief Sign of any numeric value
+    * @param value: Value with sign 
+    * @return -1 or 1, casted to T
+    */
     template <typename T, class = std::enable_if<isNumeric<T>>>
     T sign(T value)
     {
@@ -29,4 +37,21 @@ namespace math
         return sign;
     }
 
+    /**
+    * @brief Round value with defined floating part numbers
+    * @param value: Value to be round
+    * @param numbers: Floating part numbers
+    */
+    template <typename T, class = std::enable_if<isNumeric<T>>>
+    T round(T value, int numbers = 0)
+    {
+        T result = std::floor(value * std::pow(10, numbers) + 0.5) / std::pow(10, numbers);
+
+        return result;
+    }
+
+
+    /**
+    * @}
+    */
 }

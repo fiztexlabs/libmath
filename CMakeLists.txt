@@ -23,6 +23,7 @@ string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_
 #set(MATH_SHARED_LIBS " ")
 
 set(CMAKE_BUILD_TYPE Debug)
+option(MATH_USE_OMP "Usen OpenMP" ON)
 option(MATH_USE_DOUBLE_PRECISION "Use double precision for calculations" ON)
 option(MATH_BUILD_TESTS "Build libmath tests" ON)
 option(MATH_BUILD_EXAMPLES "Build libmath examples" ON)
@@ -52,9 +53,11 @@ add_library(libmath::libmath ALIAS libmath)
 
 include(GoogleTest)
 
-find_package(OpenMP)
-if (OpenMP_CXX_FOUND)
-    target_link_libraries(libmath OpenMP::OpenMP_CXX)
+if(MATH_USE_OMP)
+    find_package(OpenMP)
+    if (OpenMP_CXX_FOUND)
+        target_link_libraries(libmath OpenMP::OpenMP_CXX)
+    endif()
 endif()
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -105,7 +108,8 @@ target_sources(libmath PRIVATE ${sources})
 target_compile_definitions(libmath 
     PUBLIC 
         "$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:MATH_STATIC_DEFINE>"
-        "$<$<BOOL:${MATH_USE_DOUBLE_PRECISION}>:MATH_DOUBLE_PRECISION_DEFINE>")
+        "$<$<BOOL:${MATH_USE_DOUBLE_PRECISION}>:MATH_DOUBLE_PRECISION_DEFINE>"
+        "$<$<BOOL:${MATH_USE_OMP}>:MATH_OMP_DEFINE>")
 
 target_include_directories(libmath
     PUBLIC

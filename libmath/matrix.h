@@ -28,14 +28,14 @@ namespace math
 
 	/**
 	 * @brief Enum class for matrix dimension
-	*/
+	 */
 	enum class Dimension
 	{
 		Row = 0,
 		Column
 	};
-	
-	template<typename T>
+
+	template <typename T>
 	class Matrix;
 	// cat method predeclaration (for using default out_repr, standard (§8.3.6))
 	template <typename T>
@@ -75,7 +75,7 @@ namespace math
 		/**
 		 * @brief The copy constructor
 		 */
-		Matrix(const Matrix<T>& matrix);
+		Matrix(const Matrix<T> &matrix);
 
 		/**
 		 * @brief Square matrix constructor
@@ -103,7 +103,7 @@ namespace math
 		 * @return Column-matrix vector.size()*1
 		 */
 		template <class T1>
-		explicit Matrix(const std::vector<T1>& vector, bool vertical = true);
+		explicit Matrix(const std::vector<T1> &vector, bool vertical = true);
 
 		//! Matrix from list initialization (initializer_list)
 		/*! Initialization from initializer list with check for list
@@ -116,8 +116,8 @@ namespace math
 		Matrix(std::initializer_list<std::initializer_list<T1>> listMatrix);
 
 		/**
-		* @brief Matrix representation
-		*/
+		 * @brief Matrix representation
+		 */
 		MatRep representation()
 		{
 			return repr_;
@@ -163,13 +163,12 @@ namespace math
 			return mvec_;
 		}
 
-
 		/**
 		 * @brief get reference to element at specified position (i,j)
 		 * @param row row number (starting from 0)
 		 * @param col column number (starting from 0)
 		 */
-		T& operator()(size_t row, size_t col);
+		T &operator()(size_t row, size_t col);
 
 		/**
 		 * @brief const version of operator()
@@ -200,13 +199,13 @@ namespace math
 		 * 7 6
 		 * 3 2
 		 * @endcode
-		 * 
-		 * 
-		 * @param row_begin 
-		 * @param row_end 
-		 * @param col_begin 
-		 * @param col_end 
-		 * @return Matrix<T> 
+		 *
+		 *
+		 * @param row_begin
+		 * @param row_end
+		 * @param col_begin
+		 * @param col_end
+		 * @return Matrix<T>
 		 */
 		Matrix<T> operator()(size_t row_begin, size_t row_end, size_t col_begin, size_t col_end)
 		{
@@ -243,15 +242,16 @@ namespace math
 
 			Matrix<T> Mout(rows, cols);
 			size_t n = Mout.numel();
-
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
 #pragma omp parallel for shared(Mout, cols, rows, cols_dir, rows_dir, n) schedule(static)
+#endif
 			for (int pos = 0; pos < n; ++pos)
 			{
-				size_t row { 0 };
-				size_t col { 0 };
+				size_t row{0};
+				size_t col{0};
 
-				size_t src_matrix_row { 0 };
-				size_t src_matrix_col { 0 };
+				size_t src_matrix_row{0};
+				size_t src_matrix_col{0};
 
 				if (this->repr_ == math::MatRep::Row) // row repr
 				{
@@ -272,10 +272,9 @@ namespace math
 					src_pos = src_matrix_row * this->cols_ + src_matrix_col;
 				else if (this->repr_ == math::MatRep::Column) // column repr
 					src_pos = src_matrix_row + this->rows_ * src_matrix_col;
-					
+
 				Mout.mvec_.at(pos) = this->mvec_.at(src_pos);
 			}
-
 
 			return Mout;
 
@@ -295,7 +294,7 @@ namespace math
 		 * @throws math::Exception(Exception::Type::IncorrectMatRepForIndexOperator) in case of column matrix representation
 		 * @throws math::Exception(Exception::Type::IndexOutOfBounds) in case of index > (rows-1)
 		 */
-		T* operator[](size_t index);
+		T *operator[](size_t index);
 
 		/// @brief Cat a few matrices along specified dimension
 		/// @param Mv Vector of input matrices to be cat
@@ -326,15 +325,15 @@ namespace math
 		}
 
 		/**
-		* @brief Fill matrix by value val
-		* @param val: Value to fill matrix
-		*/
+		 * @brief Fill matrix by value val
+		 * @param val: Value to fill matrix
+		 */
 		void fill(T val);
 
 		/**
-		* @brief Fill matrix by random values with seed seed
-		* @param seed: Seed for random generatoe
-		*/
+		 * @brief Fill matrix by random values with seed seed
+		 * @param seed: Seed for random generatoe
+		 */
 		void rfill(unsigned int seed);
 
 		/**
@@ -343,9 +342,9 @@ namespace math
 		void print(int prec = 5);
 
 		/**
-		* @brief Print matrix to string. Specified by format
-		*/
-		void print(std::string& img, int prec = 5);
+		 * @brief Print matrix to string. Specified by format
+		 */
+		void print(std::string &img, int prec = 5);
 
 		/**
 		 * @brief Get transposed matrix
@@ -359,15 +358,15 @@ namespace math
 		void tr();
 
 		/**
-		* @brief Matrix p-norm (<a href="http://num-anal.srcc.msu.ru/prac_pos/poslist/posobie%206%20zadachi%20normy.pdf">Арушанян, 2-5)</a>)
-		*/
+		 * @brief Matrix p-norm (<a href="http://num-anal.srcc.msu.ru/prac_pos/poslist/posobie%206%20zadachi%20normy.pdf">Арушанян, 2-5)</a>)
+		 */
 		auto pnorm(const int p);
 
 		/**
 		 * @brief Check equality of the two matrices of the same type <T>
 		 */
 		template <class T1>
-		friend bool operator==(const Matrix<T1>& m1, Matrix<T1> const& m2);
+		friend bool operator==(const Matrix<T1> &m1, Matrix<T1> const &m2);
 
 		/**
 		 * @brief Max element of matrix
@@ -399,7 +398,7 @@ namespace math
 		 * @throws math::Exception(Exception::Type::DecompositionArgumentIncorrectSize)
 		 * TODO: сделать перегрузку для возвращения LU в виде единой матрицы L-E+U (стр. 73 Вержбицкого)
 		 */
-		void decompLU(Matrix<T>& Matrix_L, Matrix<T>& Matrix_U) const;
+		void decompLU(Matrix<T> &Matrix_L, Matrix<T> &Matrix_U) const;
 
 		/**
 		 * @brief overload of decompLU returning combined matrix L+U-E
@@ -422,75 +421,75 @@ namespace math
 		T det(unsigned int method = 0) const;
 
 		/**
-		* @brief multiplication of a matrix by a number
-		* @param M matrix
-		* @param n number
-		* @return multiplied matrix M by number n (M * n)
-		*/
-		template<typename T1>
-		friend Matrix<T1> operator*(const Matrix<T1>& M, T1 n);
+		 * @brief multiplication of a matrix by a number
+		 * @param M matrix
+		 * @param n number
+		 * @return multiplied matrix M by number n (M * n)
+		 */
+		template <typename T1>
+		friend Matrix<T1> operator*(const Matrix<T1> &M, T1 n);
 
 		/**
-		* @brief permutation overload of operator*(const Matrix<T>&M, T n)
-		* @param n number
-		* @param M matrix
-		* @return multiplied matrix M by number n (n * M)
-		*/
-		friend Matrix<T> operator*(T n, const Matrix<T>& M)
+		 * @brief permutation overload of operator*(const Matrix<T>&M, T n)
+		 * @param n number
+		 * @param M matrix
+		 * @return multiplied matrix M by number n (n * M)
+		 */
+		friend Matrix<T> operator*(T n, const Matrix<T> &M)
 		{
 			return (operator*(M, n));
 		}
 
 		/**
-		* @brief overload operator*= for multiplication by a number
-		* @param n number
-		* @return multiplied matrix M by number n (n * M)
-		*/
-		Matrix<T>& operator*=(T n);
+		 * @brief overload operator*= for multiplication by a number
+		 * @param n number
+		 * @return multiplied matrix M by number n (n * M)
+		 */
+		Matrix<T> &operator*=(T n);
 
 		/**
-		* @brief Multiplication of a matrix by a matrix
-		* @detailed The type of matrix returned is the same as the type of a first argument.
-		* (<a href="https://users.cs.utah.edu/~hari/teaching/paralg/tutorial/05_Cannons.html">Cannon's algorithm)</a>) used for multithreaded matrix multiplication.
-		* @throw Exception::Type::IncorrectSizeForMatrixMultiplication
-		* @return Multiplication of matrices
-		*/
-		template<typename T1>
-		friend Matrix<T1> operator*(const Matrix<T1>& A, const Matrix<T1>& B);
+		 * @brief Multiplication of a matrix by a matrix
+		 * @detailed The type of matrix returned is the same as the type of a first argument.
+		 * (<a href="https://users.cs.utah.edu/~hari/teaching/paralg/tutorial/05_Cannons.html">Cannon's algorithm)</a>) used for multithreaded matrix multiplication.
+		 * @throw Exception::Type::IncorrectSizeForMatrixMultiplication
+		 * @return Multiplication of matrices
+		 */
+		template <typename T1>
+		friend Matrix<T1> operator*(const Matrix<T1> &A, const Matrix<T1> &B);
 
 		/**
-		* @brief overload operator*= for multiplication of matrices
-		* @param M1 matrix
-		* @return multiplied matrix M by M1
-		*/
-		Matrix<T>& operator*=(const Matrix<T>& M1);
+		 * @brief overload operator*= for multiplication of matrices
+		 * @param M1 matrix
+		 * @return multiplied matrix M by M1
+		 */
+		Matrix<T> &operator*=(const Matrix<T> &M1);
 
 		/**
-		* @brief Addition of a matrix and a number
-		* @param M matrix
-		* @param n number
-		* @return sum of matrix M with n (M + n) element by element
-		*/
-		template<typename T1>
-		friend Matrix<T1> operator+(const Matrix<T1>& M, T1 n);
+		 * @brief Addition of a matrix and a number
+		 * @param M matrix
+		 * @param n number
+		 * @return sum of matrix M with n (M + n) element by element
+		 */
+		template <typename T1>
+		friend Matrix<T1> operator+(const Matrix<T1> &M, T1 n);
 
 		/**
-		* @brief permutation overload of operator+(const Matrix<T>&M, T n)
-		* @param n number
-		* @param M matrix
-		* @return sum of matrix M with n (M + n) element by element
-		*/
-		friend Matrix<T> operator+(T n, const Matrix<T>& M)
+		 * @brief permutation overload of operator+(const Matrix<T>&M, T n)
+		 * @param n number
+		 * @param M matrix
+		 * @return sum of matrix M with n (M + n) element by element
+		 */
+		friend Matrix<T> operator+(T n, const Matrix<T> &M)
 		{
 			return (operator+(M, n));
 		}
 
 		/**
-		* @brief overload operator+= for addition with number
-		* @param n number
-		* @return sum of matrix M with n (M + n) element by element
-		*/
-		Matrix<T>& operator+=(T n)
+		 * @brief overload operator+= for addition with number
+		 * @param n number
+		 * @return sum of matrix M with n (M + n) element by element
+		 */
+		Matrix<T> &operator+=(T n)
 		{
 			for (size_t i = 0; i < this->mvec_.size(); ++i)
 			{
@@ -500,47 +499,47 @@ namespace math
 		}
 
 		/**
-		* @brief Addition of matrices (element by element)
-		* @detailed The type of matrix returned is the same as the type of a first argument
-		* @throw Exception::Type::NonEqualMatrixSizes
-		* @return Addition of matrices
-		*/
-		template<typename T1>
-		friend Matrix<T1> operator+(const Matrix<T1>& A, const Matrix<T1>& B);
+		 * @brief Addition of matrices (element by element)
+		 * @detailed The type of matrix returned is the same as the type of a first argument
+		 * @throw Exception::Type::NonEqualMatrixSizes
+		 * @return Addition of matrices
+		 */
+		template <typename T1>
+		friend Matrix<T1> operator+(const Matrix<T1> &A, const Matrix<T1> &B);
 
 		/**
-		* @brief overload operator+= for sum of matrices
-		* @param M1 matrix
-		* @return sum of matrices M and M1
-		*/
-		Matrix<T>& operator+=(const Matrix<T>& M1);
+		 * @brief overload operator+= for sum of matrices
+		 * @param M1 matrix
+		 * @return sum of matrices M and M1
+		 */
+		Matrix<T> &operator+=(const Matrix<T> &M1);
 
 		/**
-		* @brief Subtraction of a matrix and a number
-		* @param M matrix
-		* @param n number
-		* @return subtraction of matrix M with n (M + n) element by element
-		*/
-		template<typename T1>
-		friend Matrix<T1> operator-(const Matrix<T1>& M, T1 n);
+		 * @brief Subtraction of a matrix and a number
+		 * @param M matrix
+		 * @param n number
+		 * @return subtraction of matrix M with n (M + n) element by element
+		 */
+		template <typename T1>
+		friend Matrix<T1> operator-(const Matrix<T1> &M, T1 n);
 
 		/**
-		* @brief permutation overload of operator-(const Matrix<T>&M, T n)
-		* @param n number
-		* @param M matrix
-		* @return subtraction of matrix M with n (M + n) element by element
-		*/
-		friend Matrix<T> operator-(T n, const Matrix<T>& M)
+		 * @brief permutation overload of operator-(const Matrix<T>&M, T n)
+		 * @param n number
+		 * @param M matrix
+		 * @return subtraction of matrix M with n (M + n) element by element
+		 */
+		friend Matrix<T> operator-(T n, const Matrix<T> &M)
 		{
 			return (operator-(M, n));
 		}
 
 		/**
-		* @brief overload operator-= for subtraction with number
-		* @param n number
-		* @return subtraction of matrix M with n (M + n) element by element
-		*/
-		Matrix<T>& operator-=(T n)
+		 * @brief overload operator-= for subtraction with number
+		 * @param n number
+		 * @return subtraction of matrix M with n (M + n) element by element
+		 */
+		Matrix<T> &operator-=(T n)
 		{
 			for (size_t i = 0; i < this->mvec_.size(); ++i)
 			{
@@ -550,20 +549,20 @@ namespace math
 		}
 
 		/**
-		* @brief Subtraction of matrices (element by element)
-		* @detailed The type of matrix returned is the same as the type of a first argument
-		* @throw Exception::Type::NonEqualMatrixSizes
-		* @return Subtraction of matrices
-		*/
-		template<typename T1>
-		friend Matrix<T1> operator-(const Matrix<T1>& A, const Matrix<T1>& B);
+		 * @brief Subtraction of matrices (element by element)
+		 * @detailed The type of matrix returned is the same as the type of a first argument
+		 * @throw Exception::Type::NonEqualMatrixSizes
+		 * @return Subtraction of matrices
+		 */
+		template <typename T1>
+		friend Matrix<T1> operator-(const Matrix<T1> &A, const Matrix<T1> &B);
 
 		/**
-		* @brief overload operator-= for sum of matrices
-		* @param M1 matrix
-		* @return sum of matrices M and M1
-		*/
-		Matrix<T>& operator-=(const Matrix<T>& M1);
+		 * @brief overload operator-= for sum of matrices
+		 * @param M1 matrix
+		 * @return sum of matrices M and M1
+		 */
+		Matrix<T> &operator-=(const Matrix<T> &M1);
 
 		/**
 		 * @brief calculate inversed matrix
@@ -578,7 +577,7 @@ namespace math
 		 * @param M matrix to compare
 		 * @return true if matrices are equal
 		 */
-		bool compare(const Matrix<T>& M, T eps = math::settings::CurrentSettings.targetTolerance);
+		bool compare(const Matrix<T> &M, T eps = math::settings::CurrentSettings.targetTolerance);
 
 	private:
 		/**
@@ -589,40 +588,40 @@ namespace math
 		 * @return T
 		 */
 		T detIterative(unsigned int iteration,
-			std::vector<size_t>& rowsExcl,
-			std::vector<size_t>& colsExcl) const;
+					   std::vector<size_t> &rowsExcl,
+					   std::vector<size_t> &colsExcl) const;
 
 	}; // class Matrix()
 
 	template <class T>
 	Matrix<T>::Matrix()
-		: rows_{ 0 }, cols_{ 0 }, mvec_{ std::vector<T>() } {};
+		: rows_{0}, cols_{0}, mvec_{std::vector<T>()} {};
 
 	template <class T>
-	Matrix<T>::Matrix(const Matrix<T>& matrix)
-		: rows_{ matrix.rows_ },
-		cols_{ matrix.cols_ },
-		mvec_{ matrix.mvec_ },
-		repr_{ matrix.repr_ } {};
+	Matrix<T>::Matrix(const Matrix<T> &matrix)
+		: rows_{matrix.rows_},
+		  cols_{matrix.cols_},
+		  mvec_{matrix.mvec_},
+		  repr_{matrix.repr_} {};
 
 	template <class T>
 	Matrix<T>::Matrix(size_t size, MatRep repr)
-		: rows_{ size },
-		cols_{ size },
-		mvec_{ std::vector<T>(size * size) },
-		repr_{ repr } {};
+		: rows_{size},
+		  cols_{size},
+		  mvec_{std::vector<T>(size * size)},
+		  repr_{repr} {};
 
 	template <class T>
 	Matrix<T>::Matrix(size_t rows, size_t cols, MatRep repr)
-		: rows_{ rows },
-		cols_{ cols },
-		mvec_{ std::vector<T>(rows * cols) },
-		repr_{ repr } {}
+		: rows_{rows},
+		  cols_{cols},
+		  mvec_{std::vector<T>(rows * cols)},
+		  repr_{repr} {}
 
 	template <typename T>
 	template <typename T1>
-	Matrix<T>::Matrix(const std::vector<T1>& vector, bool vertical)
-		: mvec_{ vector }
+	Matrix<T>::Matrix(const std::vector<T1> &vector, bool vertical)
+		: mvec_{vector}
 	{
 		if (vertical)
 		{
@@ -641,7 +640,7 @@ namespace math
 	template <typename T>
 	template <typename T1>
 	Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T1>> listMatrix)
-		: rows_{ 0 }, cols_{ 0 }, repr_{ MatRep::Row }
+		: rows_{0}, cols_{0}, repr_{MatRep::Row}
 	{
 		mvec_ = std::vector<T>{};
 		for (auto row_itr = listMatrix.begin(); row_itr != listMatrix.end(); ++row_itr)
@@ -663,7 +662,7 @@ namespace math
 	}
 
 	template <typename T>
-	T& Matrix<T>::operator()(size_t row, size_t col)
+	T &Matrix<T>::operator()(size_t row, size_t col)
 	{
 		if (row >= this->rows_)
 		{
@@ -674,7 +673,7 @@ namespace math
 			throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): col index out of bounds!"));
 		}
 
-		size_t pos{ 0 };
+		size_t pos{0};
 		if (this->repr_ == math::MatRep::Row) // row repr
 			pos = row * cols_ + col;
 		else if (this->repr_ == math::MatRep::Column) // column repr
@@ -694,7 +693,7 @@ namespace math
 			throw(ExceptionIndexOutOfBounds("Matrix<T>::operator(): col index out of bounds!"));
 		}
 
-		size_t pos{ 0 };
+		size_t pos{0};
 		if (this->repr_ == math::MatRep::Row) // row repr
 			pos = row * cols_ + col;
 		else if (this->repr_ == math::MatRep::Column) // column repr
@@ -703,7 +702,7 @@ namespace math
 	}
 
 	template <typename T>
-	T* Matrix<T>::operator[](size_t index)
+	T *Matrix<T>::operator[](size_t index)
 	{
 		if (repr_ != math::MatRep::Row)
 		{
@@ -726,9 +725,8 @@ namespace math
 	void Matrix<T>::rfill(unsigned int seed)
 	{
 		std::srand(seed);
-		std::generate(mvec_.begin(), mvec_.end(), []() {
-			return (rand() % 100) / 100.0;
-			});
+		std::generate(mvec_.begin(), mvec_.end(), []()
+					  { return (rand() % 100) / 100.0; });
 	}
 	template <typename T>
 	void Matrix<T>::print(int /*prec*/)
@@ -745,8 +743,8 @@ namespace math
 		// std::cout.unsetf(std::ios_base::left);
 	}
 
-	template <> inline
-		void Matrix<double>::print(int prec)
+	template <>
+	inline void Matrix<double>::print(int prec)
 	{
 		// std::cout.setf(std::ios_base::left);
 		for (size_t row = 0; row < rows_; ++row)
@@ -762,7 +760,7 @@ namespace math
 	}
 
 	template <typename T>
-	void Matrix<T>::print(std::string& img, int /*prec*/)
+	void Matrix<T>::print(std::string &img, int /*prec*/)
 	{
 		std::stringstream buffer;
 
@@ -782,11 +780,14 @@ namespace math
 	Matrix<T> Matrix<T>::getTr() const
 	{
 		Matrix<T> M_T(this->cols_, this->rows_);
-		//int pos = 0;
+		// int pos = 0;
 		size_t n = this->numel();
 
-		//auto start = std::chrono::steady_clock::now();
-		#pragma omp parallel for shared(M_T, n) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(M_T, n) schedule(static)
+#endif
 		for (int pos = 0; pos < n; ++pos)
 		{
 			size_t row = 0;
@@ -802,10 +803,9 @@ namespace math
 				row = pos - this->rows_ * col;
 			}
 			M_T(col, row) = this->mvec_.at(pos);
-			
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return M_T;
 	}
 
@@ -815,8 +815,11 @@ namespace math
 		Matrix<T> M_T(this->cols_, this->rows_);
 		size_t n = this->numel();
 
-		//auto start = std::chrono::steady_clock::now();
-		#pragma omp parallel for shared(M_T, n) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(M_T, n) schedule(static)
+#endif
 		for (int pos = 0; pos < n; ++pos)
 		{
 			size_t row = 0;
@@ -832,10 +835,9 @@ namespace math
 				row = pos - this->rows_ * col;
 			}
 			M_T(col, row) = this->mvec_.at(pos);
-
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
 		this->rows_ = M_T.rows();
 		this->cols_ = M_T.cols();
@@ -848,7 +850,9 @@ namespace math
 		T norm = static_cast<T>(0.0);
 		size_t n = this->numel();
 
-		#pragma omp parallel for shared(n, p) reduction(+:norm)
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(n, p) reduction(+ : norm)
+#endif
 		for (int pos = 0; pos < n; ++pos)
 		{
 			norm += static_cast<T>(std::pow(std::abs(this->mvec_.at(pos)), p));
@@ -856,11 +860,11 @@ namespace math
 		return std::pow(norm, (1.0 / p));
 	}
 	template <typename T>
-	bool operator==(const Matrix<T>& m1, Matrix<T> const& m2)
+	bool operator==(const Matrix<T> &m1, Matrix<T> const &m2)
 	{
 		return (m1.rows_ == m2.rows_) &&
-			(m1.cols_ == m2.cols_) &&
-			(m1.mvec_ == m2.mvec_);
+			   (m1.cols_ == m2.cols_) &&
+			   (m1.mvec_ == m2.mvec_);
 	}
 
 	template <typename T>
@@ -927,7 +931,10 @@ namespace math
 		// fill output matrix
 
 		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
 #pragma omp parallel for shared(Mv, Mout, n, out_repr, dim, num_elements_accum, num_rows_accum, num_cols_accum, rows, cols) schedule(static)
+#endif
 		for (int pos = 0; pos < n; ++pos)
 		{
 			size_t row = 0;
@@ -991,8 +998,8 @@ namespace math
 		return Mout;
 	}
 
-	template<typename T>
-	void Matrix<T>::decompLU(Matrix<T>& Matrix_L, Matrix<T>& Matrix_U) const
+	template <typename T>
+	void Matrix<T>::decompLU(Matrix<T> &Matrix_L, Matrix<T> &Matrix_U) const
 	{
 		if (cols_ != rows_)
 		{
@@ -1009,19 +1016,23 @@ namespace math
 			throw(math::ExceptionInvalidValue("decompLU: Matrix U argument of incorrect size!"));
 		}
 
-		//omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
+		// omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
 
-		//auto start = std::chrono::steady_clock::now();
-		//#pragma omp parallel for shared(Matrix_L) schedule(static)
-		//for (int i = 0; i < this->cols_; i++)
+		// auto start = std::chrono::steady_clock::now();
+		//  #ifdef MATH_DOUBLE_PRECISION_DEFINE
+		// #pragma omp parallel for shared(Matrix_L) schedule(static)
+		//  #endif
+		// for (int i = 0; i < this->cols_; i++)
 		//{
 		//	Matrix_L(i, i) = static_cast<T>(1);
-		//}
+		// }
 		//
-		//size_t n = this->cols_ * this->rows_;
+		// size_t n = this->cols_ * this->rows_;
 		//
-		//#pragma omp parallel for shared(Matrix_L, Matrix_U, n) schedule(static)
-		//for (int pos = 0; pos < n; ++pos)
+		//  #ifdef MATH_DOUBLE_PRECISION_DEFINE
+		// #pragma omp parallel for shared(Matrix_L, Matrix_U, n) schedule(static)
+		//  #endif
+		// for (int pos = 0; pos < n; ++pos)
 		//{
 		//	size_t row = 0;
 		//	size_t col = 0;
@@ -1059,13 +1070,11 @@ namespace math
 		//		Matrix_L(row, col) = (this->mvec_[pos] - sum_l) / Matrix_U(col, col);
 		//	} // if (i > j)
 		//
-		//}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// }
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-
-
-		//auto start = std::chrono::steady_clock::now();
+		// auto start = std::chrono::steady_clock::now();
 		for (size_t i = 0; i < cols_; i++)
 		{
 			Matrix_L(i, i) = static_cast<T>(1);
@@ -1098,12 +1107,12 @@ namespace math
 				} // if (i > j)
 			} // for (size_t j = 0; j < cols_; j++)
 		} // for (size_t i = 0; i < cols_; i++)
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
 	} // Matrix<T>::decompLU
 
-	template<typename T>
+	template <typename T>
 	Matrix<T> Matrix<T>::decompLU() const
 	{
 		if (cols_ != rows_)
@@ -1142,7 +1151,6 @@ namespace math
 		return LUE;
 	} // Matrix<T>::decompLU
 
-
 	template <typename T>
 	T Matrix<T>::det(unsigned int method) const
 	{
@@ -1161,7 +1169,7 @@ namespace math
 		if (this->rows_ == 2) // trivial case - 2x2 case
 		{
 			return (*this)(0, 0) * (*this)(1, 1) -
-				(*this)(0, 1) * (*this)(1, 0);
+				   (*this)(0, 1) * (*this)(1, 0);
 		}
 		// for sizes > 2
 		if (method == 0) // cofactor algo
@@ -1188,8 +1196,8 @@ namespace math
 
 	template <typename T>
 	T Matrix<T>::detIterative(unsigned int iteration,
-		std::vector<size_t>& rowsExcl,
-		std::vector<size_t>& colsExcl) const
+							  std::vector<size_t> &rowsExcl,
+							  std::vector<size_t> &colsExcl) const
 	{
 		if (rowsExcl.size() != colsExcl.size())
 		{
@@ -1203,7 +1211,7 @@ namespace math
 			colsExcl = std::vector<size_t>(this->cols_, 0);
 		}
 		// define size of cofactor
-		size_t numRows{ this->rows_ - iteration };
+		size_t numRows{this->rows_ - iteration};
 
 		if (numRows == 2)
 		{
@@ -1222,15 +1230,15 @@ namespace math
 			auto detrm = a11 * a22 - a21 * a12;
 			return detrm;
 		}
-		T dtrm{ 0. }; // determinant value
-		size_t row{ 0 };
+		T dtrm{0.}; // determinant value
+		size_t row{0};
 		// select row to make decomposition by
 		auto rowItr = std::find(rowsExcl.begin(), rowsExcl.end(), 0);
 		row = static_cast<size_t>(rowItr - rowsExcl.begin());
 		rowsExcl.at(row) = 1;
 		// make decomposition by NOT excluded columns
-		size_t col{ 0 }, // column number in matrix
-			colCofact{ 0 }; // column number in cofactor
+		size_t col{0},	  // column number in matrix
+			colCofact{0}; // column number in cofactor
 		auto colItr = colsExcl.begin();
 		while (colItr != colsExcl.end())
 		{
@@ -1261,40 +1269,46 @@ namespace math
 	};
 
 	template <typename T>
-	Matrix<T> operator*(const Matrix<T>& M, T n)
+	Matrix<T> operator*(const Matrix<T> &M, T n)
 	{
 		Matrix<T> mul_M(M.rows(), M.cols());
 		size_t el = M.numel();
 
-		//auto start = std::chrono::steady_clock::now();
-		#pragma omp parallel for shared(mul_M, el) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(mul_M, el) schedule(static)
+#endif
 		for (int pos = 0; pos < el; ++pos)
 		{
 			mul_M.mvec_.at(pos) = M.mvec_.at(pos) * n;
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return mul_M;
 	};
 
 	template <typename T>
-	Matrix<T>& Matrix<T>::operator*=(T n)
+	Matrix<T> &Matrix<T>::operator*=(T n)
 	{
 		size_t el = this->numel();
 
-		//auto start = std::chrono::steady_clock::now();
-		#pragma omp parallel for shared(el) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(el) schedule(static)
+#endif
 		for (int pos = 0; pos < el; ++pos)
 		{
 			this->mvec_.at(pos) *= n;
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return *this;
 	};
 
-	template<typename T>
-	Matrix<T> operator*(const Matrix<T>& A, const Matrix<T>& B)
+	template <typename T>
+	Matrix<T> operator*(const Matrix<T> &A, const Matrix<T> &B)
 	{
 		if (A.cols() != B.rows())
 		{
@@ -1303,8 +1317,11 @@ namespace math
 
 		Matrix<T> C(A.rows(), B.cols());
 
-		//auto start = std::chrono::steady_clock::now();		
-		#pragma omp parallel for shared(A, B, C) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(A, B, C) schedule(static)
+#endif
 		for (int pos = 0; pos < C.numel(); ++pos)
 		{
 			// row representation for matrix C by default
@@ -1316,39 +1333,42 @@ namespace math
 				C.mvec_[pos] += A(row, k) * B(k, col);
 			}
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
 		return C;
 	};
 
 	template <typename T>
-	Matrix<T>& Matrix<T>::operator*=(const Matrix<T>& M1)
+	Matrix<T> &Matrix<T>::operator*=(const Matrix<T> &M1)
 	{
-		Matrix<T> Mm{ operator*((*this),M1) };
+		Matrix<T> Mm{operator*((*this), M1)};
 		(*this) = Mm;
 		return *this;
 	}
 
-	template<typename T>
-	Matrix<T> operator+(const Matrix<T>& M, T n)
+	template <typename T>
+	Matrix<T> operator+(const Matrix<T> &M, T n)
 	{
 		Matrix<T> sum_M(M.rows(), M.cols());
 		size_t el = sum_M.numel();
 
-		//auto start = std::chrono::steady_clock::now();		
-		#pragma omp parallel for shared(sum_M, M, n, el) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(sum_M, M, n, el) schedule(static)
+#endif
 		for (int i = 0; i < el; ++i)
 		{
 			sum_M.mvec_.at(i) = M.mvec_.at(i) + n;
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return sum_M;
 	};
 
-	template<typename T>
-	Matrix<T> operator+(const Matrix<T>& A, const Matrix<T>& B)
+	template <typename T>
+	Matrix<T> operator+(const Matrix<T> &A, const Matrix<T> &B)
 	{
 		if (A.cols() != B.cols() ||
 			A.rows() != B.rows())
@@ -1359,47 +1379,51 @@ namespace math
 		Matrix<T> C(A.rows(), A.cols());
 		size_t el = C.numel();
 
-		//auto start = std::chrono::steady_clock::now();
-		#pragma omp parallel for shared(A, B, C, el) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(A, B, C, el) schedule(static)
+#endif
 		for (int i = 0; i < el; ++i)
 		{
 			C.mvec_.at(i) = A.mvec_.at(i) + B.mvec_.at(i);
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
 		return C;
 	};
 
 	template <typename T>
-	Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M1)
+	Matrix<T> &Matrix<T>::operator+=(const Matrix<T> &M1)
 	{
-		Matrix<T> Mm{ operator+((*this),M1) };
+		Matrix<T> Mm{operator+((*this), M1)};
 		(*this) = Mm;
 		return *this;
 	}
 
-
-
-	template<typename T>
-	Matrix<T> operator-(const Matrix<T>& M, T n)
+	template <typename T>
+	Matrix<T> operator-(const Matrix<T> &M, T n)
 	{
 		Matrix<T> diff_M(M.rows(), M.cols());
 		size_t el = diff_M.numel();
 
-		//auto start = std::chrono::steady_clock::now();		
-		#pragma omp parallel for shared(diff_M, M, n, el) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(diff_M, M, n, el) schedule(static)
+#endif
 		for (int i = 0; i < el; ++i)
 		{
 			diff_M.mvec_.at(i) = M.mvec_.at(i) - n;
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return diff_M;
 	};
 
-	template<typename T>
-	Matrix<T> operator-(const Matrix<T>& A, const Matrix<T>& B)
+	template <typename T>
+	Matrix<T> operator-(const Matrix<T> &A, const Matrix<T> &B)
 	{
 		if (A.cols() != B.cols() ||
 			A.rows() != B.rows())
@@ -1410,26 +1434,29 @@ namespace math
 		Matrix<T> C(A.rows(), A.cols());
 		size_t el = C.numel();
 
-		//auto start = std::chrono::steady_clock::now();
-		#pragma omp parallel for shared(A, B, C, el) schedule(static)
+		// auto start = std::chrono::steady_clock::now();
+
+#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#pragma omp parallel for shared(A, B, C, el) schedule(static)
+#endif
 		for (int i = 0; i < el; ++i)
 		{
 			C.mvec_.at(i) = A.mvec_.at(i) - B.mvec_.at(i);
 		}
-		//auto end = std::chrono::steady_clock::now();
-		//std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+		// auto end = std::chrono::steady_clock::now();
+		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 		return C;
 	};
 
 	template <typename T>
-	Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& M1)
+	Matrix<T> &Matrix<T>::operator-=(const Matrix<T> &M1)
 	{
-		Matrix<T> Mm{ operator-((*this),M1) };
+		Matrix<T> Mm{operator-((*this), M1)};
 		(*this) = Mm;
 		return *this;
 	}
 
-	template<typename T>
+	template <typename T>
 	Matrix<T> Matrix<T>::inverse()
 	{
 		if (this->rows_ != this->cols_)
@@ -1437,14 +1464,15 @@ namespace math
 			throw(math::ExceptionNonSquareMatrix("inverse:Inverse of non square matrix!"));
 		}
 		Matrix<T> X(this->rows(), this->cols()), // inverse matrix
-			L(this->rows(), this->cols()),  // L matrix
-			U(this->rows(), this->cols());  // U matrix
+			L(this->rows(), this->cols()),		 // L matrix
+			U(this->rows(), this->cols());		 // U matrix
 		this->decompLU(L, U);
 		long long n = static_cast<long long>(this->rows_ - 1); // size of matrix
-		long long d = n; // from right lower corner
+		long long d = n;									   // from right lower corner
 		long long i = d;
 		long long j = d;
-		while (true) {
+		while (true)
+		{
 			i = d;
 			j = d;
 			// diagonal element of X calculation
@@ -1480,13 +1508,13 @@ namespace math
 			j = d; // return to diagonal
 			--d;
 			if (d < 0)
-				break;  // exit cycle
+				break; // exit cycle
 		} // while (!end)
 		return X;
-	} //Matrix<T> Matrix<T>::inverse()
+	} // Matrix<T> Matrix<T>::inverse()
 
-	template<typename T>
-	bool Matrix<T>::compare(const Matrix<T>& M, T eps)
+	template <typename T>
+	bool Matrix<T>::compare(const Matrix<T> &M, T eps)
 	{
 		if (this->rows_ != M.rows_ ||
 			this->cols_ != M.cols_)

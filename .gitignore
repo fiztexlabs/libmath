@@ -9,6 +9,7 @@ doc/doxygen*/
 # CMake
 CMakeUserPresets.json
 CMakeLists.txt.user
+CMakeSettings.json
 
 # IDEs
 .idea/

@@ -40,6 +40,15 @@ TEST(Matrix, CreateVectors)
 	// m3_hor.print();
 }
 
+TEST(Matrix, CreateWithDefaultValues)
+{
+	omp_set_num_threads(4);
+	math::Matrix<int> m1(3, 3, -1);
+
+	EXPECT_EQ(m1.maxElement(), -1);
+	std::cout << "Matrix m1:" << m1 << std::endl;
+}
+
 TEST(Matrix, CreateFromList_and_cols_rows)
 {
 	omp_set_num_threads(4);

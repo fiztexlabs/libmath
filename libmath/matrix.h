@@ -40,6 +40,7 @@ namespace math
 
 	template <typename T>
 	class Matrix;
+
 	// cat method predeclaration (for using default out_repr, standard (§8.3.6))
 	template <typename T>
 	Matrix<T> cat(
@@ -96,6 +97,16 @@ namespace math
 		 * @return Matrix rows*columns of T
 		 */
 		Matrix(size_t rows, size_t cols, MatRep repr = MatRep::Row);
+
+		/**
+		 * @brief Arbitrary size matrix constructor with default values filling
+		 * @param rows Number of rows
+		 * @param cols Number of columns
+		 * @param default_value Default values in the matrix
+		 * @param repr Representation (0 - row,default; 1 - column)
+		 * @return Matrix rows*columns of T
+		 */
+		Matrix(size_t rows, size_t cols, T default_value, MatRep repr = MatRep::Row);
 
 		/**
 		 * @brief Column-(N*1) or row-vector (1*N) constructor by copy from std::vector
@@ -340,6 +351,14 @@ namespace math
 		void rfill(unsigned int seed);
 
 		/**
+		 * @brief Check, that matrix is empty. Return true if empty, and false otherwise
+		 */
+		bool empty() const
+		{
+			return mvec_.empty();
+		}
+
+		/**
 		 * @brief Print Matrix to std out. Specified by format
 		 */
 		void print(int prec = 5);
@@ -459,6 +478,24 @@ namespace math
 		 */
 		template <typename T1>
 		friend Matrix<T1> operator*(const Matrix<T1> &A, const Matrix<T1> &B);
+
+		/**
+		 * @brief Print matrix to console (as print method)
+		 */
+		friend std::ostream &operator<<(std::ostream &out, const math::Matrix<T> &matrix)
+		{
+			out << std::endl;
+			for (size_t row = 0; row < matrix.rows_; ++row)
+			{
+				for (size_t col = 0; col < matrix.cols_; ++col)
+				{
+					out << std::setw(10) << std::left << matrix(row, col);
+				}
+				out << std::endl;
+			}
+
+			return out;
+		}
 
 		/**
 		 * @brief overload operator*= for multiplication of matrices
@@ -619,6 +656,13 @@ namespace math
 		: rows_{rows},
 		  cols_{cols},
 		  mvec_{std::vector<T>(rows * cols)},
+		  repr_{repr} {}
+
+	template <typename T>
+	inline Matrix<T>::Matrix(size_t rows, size_t cols, T default_value, MatRep repr)
+		: rows_{rows},
+		  cols_{cols},
+		  mvec_{std::vector<T>(rows * cols, default_value)},
 		  repr_{repr} {}
 
 	template <typename T>

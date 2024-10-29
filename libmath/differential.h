@@ -14,10 +14,11 @@
 #include <chrono>
 #include <utility>
 #include <numeric>
+#include <algorithm>
+#include <cmath>
 
 namespace math
 {
-
 	/**
 	 * @brief Partial derivate of function @f$ f @f$
 	 * @details Calculate @f$ \frac{\partial f}{\partial x} @f$.
@@ -56,17 +57,19 @@ namespace math
 	 * @param F: Function
 	 * @param x: Column-vector of aruments
 	 * @param xId: index of derivated variable
-	 * @param constraints: Constraints for independent variable x: if x <= x_min, or x >= x_max, derivate will be evaluated with first scheme:
-	 * 
+	 * @param lower_bound: Lower constraints for independent variable x(xId,0). Stay NaN value, for evaluating without lower constraints.
+	 * @param upper_bound: Upper constraints for independent variable x(xId,0). Stay NaN value, for evaluating without upper constraints.
+	 *
 	 * @return Partial derivate of f with x variable @f$ \frac{\partial f}{\partial x} @f$
 	 */
 	template <typename T, typename T1, class = std::enable_if<isNumeric<T> && isNumeric<T1>>>
 	T partialDerivate(const std::function<T(const Matrix<T1> &)> &F,
 					  const math::Matrix<T1> &x,
-					  const size_t xId,
+					  const size_t xId = 0,
 					  const int scheme = 1,
 					  T1 stepX = static_cast<T1>(0.1 * math::settings::CurrentSettings.targetTolerance),
-					  std::pair<T1, T1> constraints = std::pair<T1, T1>(std::numeric_limits<T1>::quiet_NaN(), std::numeric_limits<T1>::quiet_NaN()))
+					  T1 lower_bound = std::numeric_limits<T1>::quiet_NaN(),
+					  T1 upper_bound = std::numeric_limits<T1>::quiet_NaN())
 	{
 		// check inputs
 		if (x.cols() > 1)
@@ -77,21 +80,45 @@ namespace math
 		{
 			throw(math::ExceptionIndexOutOfBounds("partialDerivate: Incorrect xId argument!"));
 		}
+		// check constraints arguments
+		if (!std::isnan(lower_bound) && !std::isnan(upper_bound))
+		{
+			if (lower_bound > upper_bound)
+			{
+				throw(math::ExceptionInvalidValue("partialDerivate with constrained arguments: Invalid constraints. Lower bound must be lower, than upper bound!"));
+			}
+			if (std::abs(upper_bound - lower_bound) < static_cast<T1>(2.) * stepX)
+			{
+				throw(math::ExceptionInvalidValue("partialDerivate with constrained arguments: Distance between lower and upper bounds must greater, than 2*dX=" + std::to_string(static_cast<T1>(2.) * stepX) + "!"));
+			}
+		}
 
 		T dFdX = static_cast<T>(0.0);
-
 		math::Matrix<T1> previous_x = x;
-		previous_x(xId, 0) = x(xId, 0) - stepX;
+		math::Matrix<T1> current_x = x;
 		math::Matrix<T1> next_x = x;
-		next_x(xId, 0) = x(xId, 0) + stepX;
+
+		// if lower bound defined
+		if (!std::isnan(lower_bound))
+		{
+			current_x(xId, 0) = std::max(x(xId, 0), lower_bound + stepX);
+		}
+		// if upper bound defined
+		if (!std::isnan(upper_bound))
+		{
+			current_x(xId, 0) = std::min(current_x(xId, 0), upper_bound - stepX);
+		}
+
+		previous_x(xId, 0) = current_x(xId, 0) - stepX;
+		next_x(xId, 0) = current_x(xId, 0) + stepX;
 
 		switch (scheme)
 		{
 		case 1:
-			dFdX = (F(x) - F(previous_x)) / static_cast<T>(stepX);
+			dFdX = (F(current_x) - F(previous_x)) / static_cast<T>(stepX);
 			break;
 		case 2:
-			dFdX = ((3.0 / 2.0) * F(next_x) - 2.0 * F(x) + 0.5 * F(previous_x)) / static_cast<T>(stepX);
+			dFdX = ((3.0 / 2.0) * F(next_x) - 2.0 * F(current_x) + 0.5 * F(previous_x)) / static_cast<T>(stepX);
 			break;
 		default:
 			throw(math::ExceptionInvalidValue("partialDerivate: Incorrect scheme argument!"));
@@ -129,6 +156,9 @@ namespace math
 	 * @param stepX: Step of derivate calculation, @f$ \Delta x = x_i-x_{i-1} @f$ (0.1*math::settings::Settings.targetTolerance by default)
 	 * @param F: Function
 	 * @param x: Argument
+	 * @param lower_bound: Lower constraints for independent variable x. Stay NaN value, for evaluating without lower constraints.
+	 * @param upper_bound: Upper constraints for independent variable x. Stay NaN value, for evaluating without upper constraints.
+	 *
 	 * @return Derivate of f with x argument, @f$ \frac{df}{dx} @f$
 	 */
 	template <typename T, typename T1, class = std::enable_if<isNumeric<T> && isNumeric<T1>>>
@@ -136,7 +166,9 @@ namespace math
 		const std::function<T(const T1)> &F,
 		const T1 x,
 		const int scheme = 1,
-		T1 stepX = static_cast<T1>(0.1 * math::settings::CurrentSettings.targetTolerance))
+		T1 stepX = static_cast<T1>(0.1 * math::settings::CurrentSettings.targetTolerance),
+		T1 lower_bound = std::numeric_limits<T1>::quiet_NaN(),
+		T1 upper_bound = std::numeric_limits<T1>::quiet_NaN())
 	{
 		Matrix<T1> args(std::vector<T1>{x}, 1);
 		std::function<T(const Matrix<T1> &)> f(
@@ -145,7 +177,14 @@ namespace math
 				return F(args(0, 0));
 			});
 
-		return math::partialDerivate<T, T1>(f, args, 0, scheme, stepX);
+		return math::partialDerivate<T, T1>(
+			f,
+			args,
+			0,
+			scheme,
+			stepX,
+			lower_bound,
+			upper_bound);
 	}
 
 	/**
@@ -218,6 +257,8 @@ namespace math
 	 * @param[in] F: Vector of functions (F = vector function @f$ \mathbf{u} @f$)
 	 * @param[in] x: Column matrix of arguments of F, for which Jakobian calculates
 	 * @param[out] J: Jakobi's matrix of size MxN
+	 * @param[in] lower_bound: Vector of arguments lower bounds
+	 * @param[in] upper_bound: Vector of arguments upper bounds
 	 */
 	template <typename T, typename T1, class = std::enable_if<isNumeric<T> && isNumeric<T1>>>
 	void jacobi(
@@ -225,20 +266,56 @@ namespace math
 		const math::Matrix<T1> &x,
 		math::Matrix<T> &J,
 		const int scheme = 1,
-		T1 stepX = static_cast<T1>(0.001 * math::settings::CurrentSettings.targetTolerance))
+		T1 stepX = static_cast<T1>(0.001 * math::settings::CurrentSettings.targetTolerance),
+		const Matrix<T1> &lower_bound = Matrix<T1>(),
+		const Matrix<T1> &upper_bound = Matrix<T1>())
 	{
 		// check inputs
 		if (x.cols() > 1)
 		{
-			std::cerr << "jakobian: Matrix x argument must be column matrix!\n";
-			// Exception exc(Exception::Type::IncorrectMatrixSize);
-			// throw exc;
+			throw(math::ExceptionIncorrectMatrix("jacobi: Matrix x argument must be column matrix!"));
 		}
 		if (x.rows() != F.size())
 		{
-			std::cerr << "jakobian: dimensions of input argument F and output x didn't agree!\n";
-			// Exception exc(Exception::Type::IncorrectMatrixSize);
-			// throw exc;
+			throw(math::ExceptionIncorrectMatrix("jacobi: Dimensions of input argument F and output x didn't agree!"));
+		}
+
+		Matrix<T1> lb;
+		Matrix<T1> ub;
+
+		// check constraints
+		if (!lower_bound.empty() && !upper_bound.empty() )
+		{
+			if (lower_bound.rows() != upper_bound.rows())
+			{
+				throw(math::ExceptionIncorrectMatrix("jacobi with constrained arguments: Dimensions of lower and upper bounds must agree!"));
+			}
+		}
+
+		if (!lower_bound.empty()) // check vector dimension, if defined
+		{
+			if (lower_bound.cols() > 1)
+			{
+				throw(ExceptionIncorrectMatrix("jacobi with constrained arguments: Lower bounds must be column matrix!"));
+			}
+			lb = lower_bound;
+		}
+		else // fill with NaN if not defined
+		{
+			lb = Matrix<T1>(x.rows(), 1, std::numeric_limits<T1>::quiet_NaN());
+		}
+
+		if (!upper_bound.empty()) // check vector dimension, if defined
+		{
+			if (upper_bound.cols() > 1)
+			{
+				throw(ExceptionIncorrectMatrix("jacobi with constrained arguments: Upper bounds must be column matrix!"));
+			}
+			ub = upper_bound;
+		}
+		else // fill with NaN if not defined
+		{
+			ub = Matrix<T1>(x.rows(), 1, std::numeric_limits<T1>::quiet_NaN());
 		}
 
 		math::Matrix<T1> previous_x = x;
@@ -260,7 +337,7 @@ namespace math
 		// auto start = std::chrono::steady_clock::now();
 
 #ifdef MATH_OMP_DEFINE
-#pragma omp parallel for shared(J, n_els) schedule(static)
+#pragma omp parallel for shared(J, n_els, lb, ub) schedule(static)
 #endif
 		for (int pos = 0; pos < n_els; ++pos)
 		{
@@ -276,7 +353,7 @@ namespace math
 				col = (size_t)std::floor(pos / J.rows());
 				row = pos - J.rows() * col;
 			}
-			J(col, row) = math::partialDerivate<T, T1>(F[col], x, row, scheme, stepX);
+			J(col, row) = math::partialDerivate<T, T1>(F[col], x, row, scheme, stepX, lb(row, 0), ub(row, 0));
 		}
 		// auto end = std::chrono::steady_clock::now();
 		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;

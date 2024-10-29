@@ -6,8 +6,14 @@
 #include <libmath/boolean.h>
 #include <vector>
 #include <functional>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
+
 #include <chrono>
+#include <utility>
+#include <numeric>
 
 namespace math
 {
@@ -50,6 +56,8 @@ namespace math
 	 * @param F: Function
 	 * @param x: Column-vector of aruments
 	 * @param xId: index of derivated variable
+	 * @param constraints: Constraints for independent variable x: if x <= x_min, or x >= x_max, derivate will be evaluated with first scheme:
+	 * 
 	 * @return Partial derivate of f with x variable @f$ \frac{\partial f}{\partial x} @f$
 	 */
 	template <typename T, typename T1, class = std::enable_if<isNumeric<T> && isNumeric<T1>>>
@@ -57,7 +65,8 @@ namespace math
 					  const math::Matrix<T1> &x,
 					  const size_t xId,
 					  const int scheme = 1,
-					  T1 stepX = static_cast<T1>(0.1 * math::settings::CurrentSettings.targetTolerance))
+					  T1 stepX = static_cast<T1>(0.1 * math::settings::CurrentSettings.targetTolerance),
+					  std::pair<T1, T1> constraints = std::pair<T1, T1>(std::numeric_limits<T1>::quiet_NaN(), std::numeric_limits<T1>::quiet_NaN()))
 	{
 		// check inputs
 		if (x.cols() > 1)
@@ -250,7 +259,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(J, n_els) schedule(static)
 #endif
 		for (int pos = 0; pos < n_els; ++pos)

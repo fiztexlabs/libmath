@@ -2,7 +2,10 @@
 #include <libmath/interpolator/interpolator.h>
 #include <algorithm>
 #include <cmath>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
 
 namespace math
 {

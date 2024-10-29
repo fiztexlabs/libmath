@@ -12,7 +12,10 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdlib>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
 
 #include <chrono>
 
@@ -242,7 +245,7 @@ namespace math
 
 			Matrix<T> Mout(rows, cols);
 			size_t n = Mout.numel();
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(Mout, cols, rows, cols_dir, rows_dir, n) schedule(static)
 #endif
 			for (int pos = 0; pos < n; ++pos)
@@ -785,7 +788,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(M_T, n) schedule(static)
 #endif
 		for (int pos = 0; pos < n; ++pos)
@@ -817,7 +820,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(M_T, n) schedule(static)
 #endif
 		for (int pos = 0; pos < n; ++pos)
@@ -850,7 +853,7 @@ namespace math
 		T norm = static_cast<T>(0.0);
 		size_t n = this->numel();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(n, p) reduction(+ : norm)
 #endif
 		for (int pos = 0; pos < n; ++pos)
@@ -932,7 +935,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(Mv, Mout, n, out_repr, dim, num_elements_accum, num_rows_accum, num_cols_accum, rows, cols) schedule(static)
 #endif
 		for (int pos = 0; pos < n; ++pos)
@@ -1019,7 +1022,7 @@ namespace math
 		// omp_set_num_threads(std::max(settings::CurrentSettings.numThreads, 1));
 
 		// auto start = std::chrono::steady_clock::now();
-		//  #ifdef MATH_DOUBLE_PRECISION_DEFINE
+		//  #ifdef MATH_OMP_DEFINE
 		// #pragma omp parallel for shared(Matrix_L) schedule(static)
 		//  #endif
 		// for (int i = 0; i < this->cols_; i++)
@@ -1029,7 +1032,7 @@ namespace math
 		//
 		// size_t n = this->cols_ * this->rows_;
 		//
-		//  #ifdef MATH_DOUBLE_PRECISION_DEFINE
+		//  #ifdef MATH_OMP_DEFINE
 		// #pragma omp parallel for shared(Matrix_L, Matrix_U, n) schedule(static)
 		//  #endif
 		// for (int pos = 0; pos < n; ++pos)
@@ -1276,7 +1279,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(mul_M, el) schedule(static)
 #endif
 		for (int pos = 0; pos < el; ++pos)
@@ -1295,7 +1298,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(el) schedule(static)
 #endif
 		for (int pos = 0; pos < el; ++pos)
@@ -1319,7 +1322,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(A, B, C) schedule(static)
 #endif
 		for (int pos = 0; pos < C.numel(); ++pos)
@@ -1355,7 +1358,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(sum_M, M, n, el) schedule(static)
 #endif
 		for (int i = 0; i < el; ++i)
@@ -1381,7 +1384,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(A, B, C, el) schedule(static)
 #endif
 		for (int i = 0; i < el; ++i)
@@ -1410,7 +1413,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(diff_M, M, n, el) schedule(static)
 #endif
 		for (int i = 0; i < el; ++i)
@@ -1436,7 +1439,7 @@ namespace math
 
 		// auto start = std::chrono::steady_clock::now();
 
-#ifdef MATH_DOUBLE_PRECISION_DEFINE
+#ifdef MATH_OMP_DEFINE
 #pragma omp parallel for shared(A, B, C, el) schedule(static)
 #endif
 		for (int i = 0; i < el; ++i)

@@ -3,7 +3,11 @@
 #include <libmath/matrix.h>
 #include <libmath/math_settings.h>
 #include <libmath/boolean.h>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
+
 #include <string>
 
 namespace math

@@ -9,7 +9,10 @@
 #include <functional>
 #include <vector>
 #include <memory>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
 
 namespace math
 {

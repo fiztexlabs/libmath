@@ -6,7 +6,11 @@
 #include <libmath/solver/las/kholetsky.h>
 #include <libmath/solver/las/bicgstab.h>
 #include <libmath/math_exception.h>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
+
 #include <string>
 #include <memory>
 #include <iostream>

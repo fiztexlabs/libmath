@@ -259,15 +259,21 @@ namespace math
 		virtual UnlinearSolver<T>* copy() = 0;
 
 		/**
-		* @brief Find roots of system @f$ F(x) = 0 @f$
-		* @details For solving system of unlinear equations F must be vector of functions with
-		* size, greater, than 1. If size of vector F and matrix x equal to 1 - single equation 
-		* @f$ F[0](x)=0 @f$ will be solved.
-		* @param[in] F: Vector of functions, defines system of unlinear equations of type @f$ f(\mathbf{x}) = 0 @f$
-		* @param[out] x: Column matrix of result roots. Initial value of x used as initial guess for numerical method
-		* 
-		*/
-		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) const = 0;
+		 * @brief Find roots of system @f$ F(x) = 0 @f$
+		 * @details For solving system of unlinear equations F must be vector of functions with
+		 * size, greater, than 1. If size of vector F and matrix x equal to 1 - single equation
+		 * @f$ F[0](x)=0 @f$ will be solved.
+		 * @param[in] F: Vector of functions, defines system of unlinear equations of type @f$ f(\mathbf{x}) = 0 @f$
+		 * @param[out] x: Column matrix of result roots. Initial value of x used as initial guess for numerical method
+		 * @param[in] x_min: Vector of arguments lower bounds
+		 * @param[in] x_max: Vector of arguments upper bounds
+		 *
+		 */
+		virtual void solve(const std::vector<std::function<T(
+			const Matrix<T>&)>>& F, 
+			Matrix<T>& x,
+            const Matrix<T> &x_min = Matrix<T>(),
+            const Matrix<T> &x_max = Matrix<T>()) const = 0;
 
 		/**
 		* @brief Set solver settings

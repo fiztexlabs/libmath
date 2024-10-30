@@ -47,8 +47,12 @@ namespace math
             return new Secant<T>(*this);
         }
 
-		virtual void solve(const std::vector<std::function<T(const Matrix<T>&)>>& F, Matrix<T>& x) const override
-		{
+        virtual void solve(
+            const std::vector<std::function<T(const Matrix<T> &)>> &F,
+            Matrix<T> &x,
+            const Matrix<T> &x_min = Matrix<T>(),
+            const Matrix<T> &x_max = Matrix<T>()) const override
+        {
             // check inputs
             if (x.cols() > 1)
             {
@@ -80,7 +84,7 @@ namespace math
 
             while (!stop)
             {
-                math::jacobi(F, x, df, UnlinearSolver<T>::currentSetup_.diff_scheme, UnlinearSolver<T>::currentSetup_.diff_step);
+                math::jacobi(F, x, df, UnlinearSolver<T>::currentSetup_.diff_scheme, UnlinearSolver<T>::currentSetup_.diff_step, x_min, x_max);
 
                 for (size_t i = 0; i < n; ++i)
                 {

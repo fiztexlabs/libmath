@@ -3,7 +3,7 @@ project(libmath
     VERSION 2.0.0
     DESCRIPTION "Math library"
     LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #----------------------------------------------------------------------------------------------------------------------

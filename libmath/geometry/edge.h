@@ -13,7 +13,7 @@ namespace math
 	/**
 	* @brief Class for n-dimension edge
 	*/
-	template<typename T>
+	template<class T>
 	class Edge
 	{
 	protected:

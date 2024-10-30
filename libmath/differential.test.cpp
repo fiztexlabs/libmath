@@ -378,7 +378,13 @@ TEST(jakobi, Constraints)
 	// define J matrix for results of jakobian
 	math::Matrix<double> J(3);
 
-	// calculate Jakobi matrix
-	// math::jacobi(F, x0, J, 1, );
-
+	// calculate Jakobi matrix with constrained arguments
+	math::jacobi(
+		F,
+		x0,
+		J,
+		1,
+		0.001 * math::settings::CurrentSettings.targetTolerance,
+		x_min,
+		x_max);
 }

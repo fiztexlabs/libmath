@@ -5,7 +5,9 @@
 
 TEST(Matrix, CreateEmpty)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1;
 	math::Matrix<float> m2;
 	math::Matrix<double> m3;
@@ -13,7 +15,9 @@ TEST(Matrix, CreateEmpty)
 
 TEST(Matrix, CreateSquare)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1(10);
 	math::Matrix<float> m2(10);
 	math::Matrix<double> m3(10);
@@ -21,7 +25,9 @@ TEST(Matrix, CreateSquare)
 
 TEST(Matrix, CreateVectors)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	std::vector<int> v1{ 1, 2, 3 };
 	math::Matrix<int> m1(v1);
 	math::Matrix<int> m1_hor(v1, false);
@@ -42,7 +48,9 @@ TEST(Matrix, CreateVectors)
 
 TEST(Matrix, CreateWithDefaultValues)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1(3, 3, -1);
 
 	EXPECT_EQ(m1.maxElement(), -1);
@@ -51,7 +59,9 @@ TEST(Matrix, CreateWithDefaultValues)
 
 TEST(Matrix, CreateFromList_and_cols_rows)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -76,7 +86,9 @@ TEST(Matrix, CreateFromList_and_cols_rows)
 
 TEST(Matrix, IncorrectInitializationByList)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	// Try incorrect initialization
 	try
 	{
@@ -95,7 +107,9 @@ TEST(Matrix, IncorrectInitializationByList)
 
 TEST(Matrix, at)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -118,7 +132,9 @@ TEST(Matrix, at)
 
 TEST(Matrix, ColumnRep)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	// testing for column representation
 	math::Matrix<int> m3(3, math::MatRep::Column);
 	int num = 1;
@@ -136,7 +152,9 @@ TEST(Matrix, ColumnRep)
 
 TEST(Matrix, pnorm)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1 =
 	{
 		{2, 3, -1},
@@ -148,7 +166,9 @@ TEST(Matrix, pnorm)
 
 TEST(Matrix, getTr)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -163,7 +183,9 @@ TEST(Matrix, getTr)
 
 TEST(Matrix, tr)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -179,7 +201,9 @@ TEST(Matrix, tr)
 
 TEST(Matrix, CopyConstructor)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -190,7 +214,9 @@ TEST(Matrix, CopyConstructor)
 
 TEST(Matrix, CheckEqualOperator)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1 =
 	{
 	  {1, 2, 3},
@@ -209,7 +235,9 @@ TEST(Matrix, CheckEqualOperator)
 
 TEST(Matrix, det)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,3,-4,2,3},
@@ -226,7 +254,9 @@ TEST(Matrix, det)
 
 TEST(Matrix, decompLU)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -261,7 +291,9 @@ TEST(Matrix, decompLU)
 
 TEST(Matrix, multByNumber)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -298,7 +330,9 @@ TEST(Matrix, multByNumber)
 
 TEST(Matrix, MatrixMultiplication)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -335,7 +369,9 @@ TEST(Matrix, MatrixMultiplication)
 
 TEST(Matrix, SubtractNumber)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -359,7 +395,9 @@ TEST(Matrix, SubtractNumber)
 
 TEST(Matrix, SubtractMatrix)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -374,7 +412,9 @@ TEST(Matrix, SubtractMatrix)
 
 TEST(Matrix, AddNumber)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -399,7 +439,9 @@ TEST(Matrix, AddNumber)
 
 TEST(Matrix, AddMatrix)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -414,7 +456,9 @@ TEST(Matrix, AddMatrix)
 
 TEST(Matrix, Inverse)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,3,-4,2,3},
@@ -438,7 +482,9 @@ TEST(Matrix, Inverse)
 
 TEST(Matrix, IndexOperator)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<int> m1 =
 	{
 	  {2,-1,1},
@@ -473,7 +519,9 @@ TEST(Matrix, IndexOperator)
 
 TEST(Matrix, CatMatrix)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 	math::Matrix<double> m1 =
 	{
 	  {2,-1,1},
@@ -534,7 +582,9 @@ TEST(Matrix, CatMatrix)
 
 TEST(Matrix, RangeIndexOperator)
 {
-	omp_set_num_threads(1);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(1);
+#endif
 
 	math::Matrix<int> m1 =
 	{

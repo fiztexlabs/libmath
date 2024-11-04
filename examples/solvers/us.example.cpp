@@ -1,13 +1,18 @@
 #include <libmath/solver/us/secant.h>
 #include <libmath/matrix.h>
 #include <iostream>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
 
 int main()
 {
 	// solve system of unlinear equations
 
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 
 	// vector function F
 	std::vector<std::function<double(const math::Matrix<double>&)>> F;

@@ -23,7 +23,7 @@ string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_
 #set(MATH_SHARED_LIBS " ")
 
 set(CMAKE_BUILD_TYPE Debug)
-option(MATH_USE_OMP "Usen OpenMP" ON)
+option(MATH_USE_OMP "Usen OpenMP" OFF)
 option(MATH_USE_DOUBLE_PRECISION "Use double precision for calculations" ON)
 option(MATH_BUILD_TESTS "Build libmath tests" ON)
 option(MATH_BUILD_EXAMPLES "Build libmath examples" ON)

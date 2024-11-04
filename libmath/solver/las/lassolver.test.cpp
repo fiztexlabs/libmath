@@ -5,12 +5,17 @@
 #include <libmath/solver/las/bicgstab.h>
 #include <libmath/solver/las/kholetsky.h>
 #include <libmath/boolean.h>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
 
 
 TEST(LAS, BicGStab)
 {
-    omp_set_num_threads(1);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(1);
+#endif
 
     size_t dim = 10;
 
@@ -34,7 +39,9 @@ TEST(LAS, BicGStab)
 
 TEST(LAS, Kholetsky)
 {
-    omp_set_num_threads(1);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(1);
+#endif
 
     size_t dim = 10;
 
@@ -59,7 +66,9 @@ TEST(LAS, Kholetsky)
 
 TEST(LAS, Setup)
 {
-    omp_set_num_threads(1);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(1);
+#endif
 
     size_t dim = 10;
 

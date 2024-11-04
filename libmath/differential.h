@@ -68,8 +68,8 @@ namespace math
 					  const size_t xId = 0,
 					  const int scheme = 1,
 					  T1 stepX = static_cast<T1>(0.1 * math::settings::CurrentSettings.targetTolerance),
-					  T1 lower_bound = std::numeric_limits<T1>::quiet_NaN(),
-					  T1 upper_bound = std::numeric_limits<T1>::quiet_NaN())
+					  const Matrix<T1> &lower_bound = Matrix<T1>(),
+					  const Matrix<T1> &upper_bound = Matrix<T1>())
 	{
 		// check inputs
 		if (x.cols() > 1)
@@ -81,6 +81,48 @@ namespace math
 			throw(math::ExceptionIndexOutOfBounds("partialDerivate: Incorrect xId argument!"));
 		}
 		// check constraints arguments
+
+		Matrix<T1> lb;
+		Matrix<T1> ub;
+
+		// check constraints
+		if (!lower_bound.empty() && !upper_bound.empty() )
+		{
+			if (lower_bound.rows() != upper_bound.rows())
+			{
+				throw(math::ExceptionIncorrectMatrix("partialDerivate with constrained arguments: Dimensions of lower and upper bounds must agree!"));
+			}
+		}
+
+		if (!lower_bound.empty()) // check vector dimension, if defined
+		{
+			if (lower_bound.cols() > 1)
+			{
+				throw(ExceptionIncorrectMatrix("partialDerivate with constrained arguments: Lower bounds must be column matrix!"));
+			}
+			lb = lower_bound;
+		}
+		else // fill with NaN if not defined
+		{
+			lb = Matrix<T1>(x.rows(), 1, std::numeric_limits<T1>::quiet_NaN());
+		}
+
+		if (!upper_bound.empty()) // check vector dimension, if defined
+		{
+			if (upper_bound.cols() > 1)
+			{
+				throw(ExceptionIncorrectMatrix("partialDerivate with constrained arguments: Upper bounds must be column matrix!"));
+			}
+			ub = upper_bound;
+		}
+		else // fill with NaN if not defined
+		{
+			ub = Matrix<T1>(x.rows(), 1, std::numeric_limits<T1>::quiet_NaN());
+		}
+
+
+
+
 		if (!std::isnan(lower_bound) && !std::isnan(upper_bound))
 		{
 			if (lower_bound > upper_bound)
@@ -327,9 +369,7 @@ namespace math
 		// check inputs
 		if ((J.rows() != m) || (J.cols() != n))
 		{
-			std::cerr << "jakobian: Matrix J argument of incorrect size!\n";
-			// Exception exc(Exception::Type::JakobianArgumentIncorrectSize);
-			// throw exc;
+			throw(ExceptionIncorrectMatrix("jacobi: Output matrix J must be " + std::to_string(m) + "x" + std::to_string(n) + " matrix!"));
 		}
 
 		size_t n_els = J.numel();

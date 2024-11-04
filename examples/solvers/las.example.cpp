@@ -1,12 +1,17 @@
 #include <libmath/solver/las/bicgstab.h>
 #include <libmath/matrix.h>
 #include <iostream>
+
+#ifdef MATH_OMP_DEFINE
 #include <omp.h>
+#endif
 
 int main()
 {
 	// set threads number for parallelization
-	omp_set_num_threads(1);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(1);
+#endif
 
 	// set LAS dimension
 	size_t dim = 10;

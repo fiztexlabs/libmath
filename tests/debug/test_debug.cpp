@@ -29,7 +29,9 @@ TEST(US, constructor)
 
 TEST(Matrix, MulMbyM)
 {
-    omp_set_num_threads(1);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(1);
+#endif
 
     math::Matrix<double> m1(1000);
     m1.rfill(2);

@@ -271,7 +271,9 @@ TEST(diff, Calculation)
 
 TEST(jakobi, Calculation)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 
 	// vector function F
 	std::vector<std::function<double(const math::Matrix<double>&)>> F;
@@ -325,7 +327,9 @@ TEST(jakobi, Calculation)
 
 TEST(jakobi, Constraints)
 {
-	omp_set_num_threads(4);
+#ifdef MATH_OMP_DEFINE
+omp_set_num_threads(4);
+#endif
 
 	// vector function F
 	std::vector<std::function<double(const math::Matrix<double>&)>> F;

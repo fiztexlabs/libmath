@@ -28,6 +28,15 @@ namespace math
 	};
 
 	/**
+	 * @brief Method for evaluating tolerance
+	 */
+	enum class USToleranceMethod
+	{
+		absolute,
+		relative
+	};
+
+	/**
 	* @brief Solver settings.
 	*/
 	struct USsetup
@@ -39,6 +48,7 @@ namespace math
 		/// @brief Initializer constructor
 		USsetup(
 			USStoppingCriteriaType criteria_,
+			USToleranceMethod tol_method_,
 			size_t max_iter_,
 			size_t abort_iter_,
 			real targetTolerance_,
@@ -47,6 +57,7 @@ namespace math
 			LASsolver<real>* linearSolver_
 		) :
 			criteria(criteria_),
+			tol_method(tol_method_),
 			max_iter(max_iter_),
 			abort_iter(abort_iter_),
 			targetTolerance(targetTolerance_),
@@ -60,6 +71,7 @@ namespace math
 		/// @brief Copy constructor
 		USsetup(const struct USsetup& new_setup) :
 			criteria(new_setup.criteria),
+			tol_method(new_setup.tol_method),
 			max_iter(new_setup.max_iter),
 			abort_iter(new_setup.abort_iter),
 			targetTolerance(new_setup.targetTolerance),
@@ -80,6 +92,9 @@ namespace math
 
 		/// @brief Stopping criteria
 		USStoppingCriteriaType criteria = USStoppingCriteriaType::tolerance;
+
+		/// @brief Tolerance evaluating method
+		USToleranceMethod tol_method = USToleranceMethod::absolute;
 
 		/// @brief Maximum number of internal iterations
 		size_t max_iter = 100;
@@ -108,6 +123,7 @@ namespace math
 		struct USsetup& operator=(const struct USsetup& new_setup)
 		{
 			criteria = new_setup.criteria;
+			tol_method = new_setup.tol_method;
 			max_iter = new_setup.max_iter;
 			abort_iter = new_setup.abort_iter;
 			targetTolerance = new_setup.targetTolerance;

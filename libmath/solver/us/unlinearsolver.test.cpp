@@ -71,7 +71,7 @@ omp_set_num_threads(4);
 	F.push_back(
 		[](const math::Matrix<double> &x)
 		{
-			if (x(0, 0) >= 0.0 && x(0, 0) <= 1.0 && x(1, 0) >= 0.0 && x(1, 0) <= 1.0)
+			if (x(0, 0) >= 0.0 && x(0, 0) <= 1.0 && x(1, 0) >= -1.0 && x(1, 0) <= 1.0)
 			{
 				return x(0, 0) * x(1, 0);
 			}
@@ -83,7 +83,7 @@ omp_set_num_threads(4);
 	F.push_back(
 		[](const math::Matrix<double> &x)
 		{
-			if (x(0, 0) >= 0.0 && x(0, 0) <= 1.0 && x(1, 0) >= 0.0 && x(1, 0) <= 1.0)
+			if (x(0, 0) >= 0.0 && x(0, 0) <= 1.0 && x(1, 0) >= -1.0 && x(1, 0) <= 1.0)
 			{
 				return x(0, 0) + x(1, 0) + 0.2;
 			}
@@ -97,7 +97,7 @@ omp_set_num_threads(4);
 	math::Matrix<double> x =
 	{
 		{-1.0},
-		{-1.0}
+		{-2.0}
 	};
 
 	math::Secant<double> secant_solver;
@@ -108,7 +108,7 @@ omp_set_num_threads(4);
 		x,
 		{
 			{0.0},
-			{0.0},
+			{-1.0},
 		},
 		{
 			{1.0},
@@ -116,7 +116,7 @@ omp_set_num_threads(4);
 		});
 
 	EXPECT_EQ(math::isEqual(F[0](x), 0.0), true);
-	EXPECT_EQ(math::isEqual(F[1](x), -0.2), true);
+	EXPECT_EQ(math::isEqual(F[1](x), 0.0), true);
 }
 
 TEST(US, Secant)
@@ -165,6 +165,7 @@ omp_set_num_threads(4);
 	math::USsetup new_setup = 
 	{
 		math::USStoppingCriteriaType::tolerance,
+		math::USToleranceMethod::absolute,
 		100,
 		1000,
 		1.e-7,

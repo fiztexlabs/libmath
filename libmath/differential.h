@@ -352,9 +352,6 @@ namespace math
 			}
 		}
 
-		math::Matrix<T1> previous_x = x;
-		math::Matrix<T1> next_x = x;
-
 		size_t m = F.size();
 		size_t n = x.rows();
 

@@ -57,8 +57,8 @@ namespace math
 	 * @param F: Function
 	 * @param x: Column-vector of aruments
 	 * @param xId: index of derivated variable
-	 * @param lower_bound: Lower constraints for independent variable x(xId,0). Stay NaN value, for evaluating without lower constraints.
-	 * @param upper_bound: Upper constraints for independent variable x(xId,0). Stay NaN value, for evaluating without upper constraints.
+	 * @param lower_bound: Lower constraints for independent variables. Stay empty, for evaluating without lower constraints.
+	 * @param upper_bound: Upper constraints for independent variables. Stay empty, for evaluating without upper constraints.
 	 *
 	 * @return Partial derivate of f with x variable @f$ \frac{\partial f}{\partial x} @f$
 	 */
@@ -80,11 +80,6 @@ namespace math
 		{
 			throw(math::ExceptionIndexOutOfBounds("partialDerivate: Incorrect xId argument!"));
 		}
-		// check constraints arguments
-
-		Matrix<T1> lb;
-		Matrix<T1> ub;
-
 		// check constraints
 		if (!lower_bound.empty() && !upper_bound.empty() )
 		{
@@ -100,11 +95,6 @@ namespace math
 			{
 				throw(ExceptionIncorrectMatrix("partialDerivate with constrained arguments: Lower bounds must be column matrix!"));
 			}
-			lb = lower_bound;
-		}
-		else // fill with NaN if not defined
-		{
-			lb = Matrix<T1>(x.rows(), 1, std::numeric_limits<T1>::quiet_NaN());
 		}
 
 		if (!upper_bound.empty()) // check vector dimension, if defined
@@ -113,43 +103,47 @@ namespace math
 			{
 				throw(ExceptionIncorrectMatrix("partialDerivate with constrained arguments: Upper bounds must be column matrix!"));
 			}
-			ub = upper_bound;
-		}
-		else // fill with NaN if not defined
-		{
-			ub = Matrix<T1>(x.rows(), 1, std::numeric_limits<T1>::quiet_NaN());
 		}
 
-
-
-
-		if (!std::isnan(lower_bound) && !std::isnan(upper_bound))
+		if (!lower_bound.empty() && !upper_bound.empty())
 		{
-			if (lower_bound > upper_bound)
+			for (size_t i = 0; i < lower_bound.rows(); ++i)
 			{
-				throw(math::ExceptionInvalidValue("partialDerivate with constrained arguments: Invalid constraints. Lower bound must be lower, than upper bound!"));
-			}
-			if (std::abs(upper_bound - lower_bound) < static_cast<T1>(2.) * stepX)
-			{
-				throw(math::ExceptionInvalidValue("partialDerivate with constrained arguments: Distance between lower and upper bounds must greater, than 2*dX=" + std::to_string(static_cast<T1>(2.) * stepX) + "!"));
+				if (lower_bound(i, 0) > upper_bound(i, 0))
+				{
+					throw(math::ExceptionInvalidValue("partialDerivate with constrained arguments: Invalid constraints. Lower bound must be lower, than upper bound!"));
+				}
+				if (std::abs(upper_bound(i, 0) - lower_bound(i, 0)) < static_cast<T1>(2.) * stepX)
+				{
+					throw(math::ExceptionInvalidValue("partialDerivate with constrained arguments: Distance between lower and upper bounds must greater, than 2*dX=" + std::to_string(static_cast<T1>(2.) * stepX) + "!"));
+				}
 			}
 		}
 
 		T dFdX = static_cast<T>(0.0);
-		math::Matrix<T1> previous_x = x;
 		math::Matrix<T1> current_x = x;
-		math::Matrix<T1> next_x = x;
 
 		// if lower bound defined
-		if (!std::isnan(lower_bound))
+		if (!lower_bound.empty())
 		{
-			current_x(xId, 0) = std::max(x(xId, 0), lower_bound + stepX);
+			for (size_t i = 0; i < lower_bound.rows(); ++i)
+			{
+				current_x(i, 0) = std::max(x(i, 0), lower_bound(i, 0));
+			}
+			current_x(xId, 0) = std::max(x(xId, 0), lower_bound(xId, 0) + stepX);
 		}
 		// if upper bound defined
-		if (!std::isnan(upper_bound))
+		if (!upper_bound.empty())
 		{
-			current_x(xId, 0) = std::min(current_x(xId, 0), upper_bound - stepX);
+			for (size_t i = 0; i < upper_bound.rows(); ++i)
+			{
+				current_x(i, 0) = std::min(current_x(i, 0), upper_bound(i, 0));
+			}
+			current_x(xId, 0) = std::min(current_x(xId, 0), upper_bound(xId, 0) - stepX);
 		}
+
+		math::Matrix<T1> previous_x = current_x;
+		math::Matrix<T1> next_x = current_x;
 
 		previous_x(xId, 0) = current_x(xId, 0) - stepX;
 		next_x(xId, 0) = current_x(xId, 0) + stepX;
@@ -212,6 +206,18 @@ namespace math
 		T1 lower_bound = std::numeric_limits<T1>::quiet_NaN(),
 		T1 upper_bound = std::numeric_limits<T1>::quiet_NaN())
 	{
+		Matrix<T1> lb;
+		Matrix<T1> ub;
+
+		if(!std::isnan(lower_bound))
+		{
+			lb = {{lower_bound}};
+		} 
+		if(!std::isnan(upper_bound))
+		{
+			ub = {{upper_bound}};
+		} 
+
 		Matrix<T1> args(std::vector<T1>{x}, 1);
 		std::function<T(const Matrix<T1> &)> f(
 			[F](const Matrix<T1> &args)
@@ -225,8 +231,8 @@ namespace math
 			0,
 			scheme,
 			stepX,
-			lower_bound,
-			upper_bound);
+			lb,
+			ub);
 	}
 
 	/**
@@ -322,9 +328,6 @@ namespace math
 			throw(math::ExceptionIncorrectMatrix("jacobi: Dimensions of input argument F and output x didn't agree!"));
 		}
 
-		Matrix<T1> lb;
-		Matrix<T1> ub;
-
 		// check constraints
 		if (!lower_bound.empty() && !upper_bound.empty() )
 		{
@@ -333,18 +336,12 @@ namespace math
 				throw(math::ExceptionIncorrectMatrix("jacobi with constrained arguments: Dimensions of lower and upper bounds must agree!"));
 			}
 		}
-
 		if (!lower_bound.empty()) // check vector dimension, if defined
 		{
 			if (lower_bound.cols() > 1)
 			{
 				throw(ExceptionIncorrectMatrix("jacobi with constrained arguments: Lower bounds must be column matrix!"));
 			}
-			lb = lower_bound;
-		}
-		else // fill with NaN if not defined
-		{
-			lb = Matrix<T1>(x.rows(), 1, std::numeric_limits<T1>::quiet_NaN());
 		}
 
 		if (!upper_bound.empty()) // check vector dimension, if defined
@@ -353,11 +350,6 @@ namespace math
 			{
 				throw(ExceptionIncorrectMatrix("jacobi with constrained arguments: Upper bounds must be column matrix!"));
 			}
-			ub = upper_bound;
-		}
-		else // fill with NaN if not defined
-		{
-			ub = Matrix<T1>(x.rows(), 1, std::numeric_limits<T1>::quiet_NaN());
 		}
 
 		math::Matrix<T1> previous_x = x;
@@ -377,7 +369,7 @@ namespace math
 		// auto start = std::chrono::steady_clock::now();
 
 #ifdef MATH_OMP_DEFINE
-#pragma omp parallel for shared(J, n_els, lb, ub) schedule(static)
+#pragma omp parallel for shared(J, n_els, lower_bound, upper_bound) schedule(static)
 #endif
 		for (int pos = 0; pos < n_els; ++pos)
 		{
@@ -393,7 +385,7 @@ namespace math
 				col = (size_t)std::floor(pos / J.rows());
 				row = pos - J.rows() * col;
 			}
-			J(col, row) = math::partialDerivate<T, T1>(F[col], x, row, scheme, stepX, lb(row, 0), ub(row, 0));
+			J(col, row) = math::partialDerivate<T, T1>(F[col], x, row, scheme, stepX, lower_bound, upper_bound);
 		}
 		// auto end = std::chrono::steady_clock::now();
 		// std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;

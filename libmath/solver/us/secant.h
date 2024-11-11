@@ -65,23 +65,24 @@ namespace math
 
             size_t n = F.size();
             Matrix<T> dx(n, 1, UnlinearSolver<T>::currentSetup_.diff_step);
-            // dx.fill(static_cast<T>(0.0));
-
             Matrix<T> df(F.size(), x.rows());
 
             // residuals column-matrix
             Matrix<T> y(n, 1, 0.0);
-            // y.fill(static_cast<T>(0.0));
 
-            // std::vector<T> r(n, static_cast<T>(1.0));
+            // residuals
             Matrix<T> r(n, 1, 1);
+
+            // error
             T E = static_cast<T>(1.0);
+
+            // last and current residuals
             T r_l = static_cast<T>(1.0);
-            T r_c = static_cast<T>(0.0);
 
             // constrained arguments
             Matrix<T> x_interm = x;
 
+            // last solution
             Matrix<T> x_l = x_interm;
 
             size_t iter_cnt = 0;
@@ -89,31 +90,31 @@ namespace math
             // stopping criteria
             bool stop = 0;
 
+            // if lower bound defined
+            if (!x_min.empty())
+            {
+                for (size_t i = 0; i < x_min.rows(); ++i)
+                {
+                    x_interm(i, 0) = std::max(x_interm(i, 0), x_min(i, 0) + UnlinearSolver<T>::currentSetup_.diff_step);
+                }
+            }
+            // if upper bound defined
+            if (!x_max.empty())
+            {
+                for (size_t i = 0; i < x_max.rows(); ++i)
+                {
+                    x_interm(i, 0) = std::min(x_interm(i, 0), x_max(i, 0) - UnlinearSolver<T>::currentSetup_.diff_step);
+                }
+            }
+
+            for (size_t i = 0; i < n; ++i)
+            {
+                y(i, 0) = -F[i](x_interm);
+            }
+
             while (!stop)
             {
                 math::jacobi(F, x_interm, df, UnlinearSolver<T>::currentSetup_.diff_scheme, UnlinearSolver<T>::currentSetup_.diff_step, x_min, x_max);
-
-                // if lower bound defined
-                if (!x_min.empty())
-                {
-                    for (size_t i = 0; i < x_min.rows(); ++i)
-                    {
-                        x_interm(i, 0) = std::max(x_interm(i, 0), x_min(i, 0) + UnlinearSolver<T>::currentSetup_.diff_step);
-                    }
-                }
-                // if upper bound defined
-                if (!x_max.empty())
-                {
-                    for (size_t i = 0; i < x_max.rows(); ++i)
-                    {
-                        x_interm(i, 0) = std::min(x_interm(i, 0), x_max(i, 0) - UnlinearSolver<T>::currentSetup_.diff_step);
-                    }
-                }
-
-                for (size_t i = 0; i < n; ++i)
-                {
-                    y(i, 0) = -F[i](x_interm);
-                }
 
                 // solve system
                 if (df.numel() > 1)
@@ -134,6 +135,23 @@ namespace math
                     x_interm(i, 0) += dx(i, 0);
                 }
 
+                // if lower bound defined
+                if (!x_min.empty())
+                {
+                    for (size_t i = 0; i < x_min.rows(); ++i)
+                    {
+                        x_interm(i, 0) = std::max(x_interm(i, 0), x_min(i, 0) + UnlinearSolver<T>::currentSetup_.diff_step);
+                    }
+                }
+                // if upper bound defined
+                if (!x_max.empty())
+                {
+                    for (size_t i = 0; i < x_max.rows(); ++i)
+                    {
+                        x_interm(i, 0) = std::min(x_interm(i, 0), x_max(i, 0) - UnlinearSolver<T>::currentSetup_.diff_step);
+                    }
+                }
+
                 ++iter_cnt;
 
                 // define stopping criteria
@@ -141,20 +159,17 @@ namespace math
                 {
                     for (size_t i = 0; i < n; ++i)
                     {
-                        // x_l = x_interm(i, 0) - dx(i, 0);
-                        // r[i] = std::abs((x_l - x_interm(i, 0)) / x_interm(i, 0));
                         r_l = -y(i, 0);
-                        r_c = F[i](x_interm);
+                        y(i, 0) = -F[i](x_interm);
                         if (UnlinearSolver<T>::currentSetup_.tol_method == USToleranceMethod::absolute)
                         {
-                            r(i, 0) = std::abs(r_c);
+                            r(i, 0) = std::abs(y(i, 0));
                         }
                         if (UnlinearSolver<T>::currentSetup_.tol_method == USToleranceMethod::relative)
                         {
-                            r(i, 0) = std::abs((r_l - r_c) / r_c);
+                            r(i, 0) = std::abs((r_l - y(i, 0)) / y(i, 0));
                         }
                     }
-                    // E = *std::max_element(r.begin(), r.end());
                     E = r.maxElement();
 
                     if (E <= static_cast<T>(UnlinearSolver<T>::currentSetup_.targetTolerance))
@@ -180,8 +195,6 @@ namespace math
                     }
                 }
             }
-
-
-		}
+        }
 	};
 }

@@ -188,6 +188,10 @@ namespace math
                 }
                 if (UnlinearSolver<T>::currentSetup_.criteria == USStoppingCriteriaType::iterations)
                 {
+                    for (size_t i = 0; i < n; ++i)
+                    {
+                        y(i, 0) = -F[i](x_interm);
+                    }
                     if (iter_cnt > UnlinearSolver<T>::currentSetup_.max_iter)
                     {
                         stop = 1;

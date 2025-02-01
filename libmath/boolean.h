@@ -4,6 +4,7 @@
 #include <limits>
 #include <libmath/math_settings.h>
 #include <algorithm>
+#include <concepts>
 
 namespace math
 {
@@ -103,6 +104,32 @@ namespace math
 		std::is_same<T, double const>::value ||
 		std::is_same<T, long double>::value ||
 		std::is_same<T, long double const>::value;
+
+
+	template<typename T>
+	concept Numeric = requires(T a)
+	{
+		{ a } -> std::convertible_to<int>;
+		{ a } -> std::convertible_to<int const>;
+		{ a } -> std::convertible_to<long int>;
+		{ a } -> std::convertible_to<long int const>;
+		{ a } -> std::convertible_to<long long>;
+		{ a } -> std::convertible_to<long long const>;
+		{ a } -> std::convertible_to<unsigned int>;
+		{ a } -> std::convertible_to<unsigned int const>;
+		{ a } -> std::convertible_to<unsigned long int>;
+		{ a } -> std::convertible_to<unsigned long int const>;
+		{ a } -> std::convertible_to<unsigned long long>;
+		{ a } -> std::convertible_to<unsigned long long const>;
+
+		{ a } -> std::convertible_to<float>;
+		{ a } -> std::convertible_to<float const>;
+
+		{ a } -> std::convertible_to<double>;
+		{ a } -> std::convertible_to<double const>;
+		{ a } -> std::convertible_to<long double>;
+		{ a } -> std::convertible_to<long double const>;
+	};
 
 	/**
 	* @}

@@ -166,4 +166,5 @@ namespace math
 			type_ = "NonColumnVector";
 		}
 	};
+
 }

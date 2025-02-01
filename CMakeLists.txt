@@ -3,7 +3,7 @@ project(libmath
     VERSION 2.0.0
     DESCRIPTION "Math library"
     LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -95,6 +95,15 @@ set(sources
     libmath/interpolator/interpolator.h
     # libmath/interpolator/bilinear_interpolator.h
     libmath/interpolator/polygone_interpolator.h
+
+    libmath/geometry/node.h
+    libmath/geometry/edge.h
+    libmath/geometry/polygone.h
+
+    libmath/triangulator/triangulator.h
+    libmath/triangulator/iterative.h
+    libmath/triangulator/triang_dynamic_cash.h
+    libmath/triangulator/triang_dynamic_cash.cpp
 )
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
@@ -350,6 +359,56 @@ if(MATH_BUILD_TESTS)
         libmath/interpolator/interpolator.test.cpp
     )
     target_sources ( libmath-interpolator-test PRIVATE ${InterpTestSources} )
+
+        
+    #---------------------------------------------
+    # gemetry tests
+    #---------------------------------------------
+    add_executable ( libmath-geometry-test )    
+    if(GTest_FOUND)
+        target_link_libraries( libmath-geometry-test
+           PRIVATE
+               libmath::libmath
+               GTest::GTest
+               GTest::Main
+        )
+    else()
+        target_link_libraries( libmath-geometry-test
+           PRIVATE
+               libmath::libmath
+               gtest
+               gtest_main
+        )
+    endif()
+    set(GeomTestSources
+        libmath/geometry/geometry.test.cpp
+    )
+    target_sources ( libmath-geometry-test PRIVATE ${GeomTestSources} )
+
+        
+    #---------------------------------------------
+    # triangulators test
+    #---------------------------------------------
+    add_executable ( libmath-triangulator-test )    
+    if(GTest_FOUND)
+        target_link_libraries( libmath-triangulator-test
+           PRIVATE
+               libmath::libmath
+               GTest::GTest
+               GTest::Main
+        )
+    else()
+        target_link_libraries( libmath-triangulator-test
+           PRIVATE
+               libmath::libmath
+               gtest
+               gtest_main
+        )
+    endif()
+    set(TriangTestSources
+        libmath/triangulator/triangulator.test.cpp
+    )
+    target_sources ( libmath-triangulator-test PRIVATE ${TriangTestSources} )
 endif()
 
 if(MATH_BUILD_EXAMPLES)
